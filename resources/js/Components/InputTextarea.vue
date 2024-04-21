@@ -24,21 +24,29 @@ onMounted(() => {
 
 defineExpose({ focus: () => input.value.focus() });
 
-function onINputChange($event) {
+function onInputChange($event) {
     emit('update:modelValue', $event.target.value);
 
+    adjustHeight()
+}
+
+function adjustHeight() {
     if(props.autoResize) {
         input.value.style.height = 'auto';
         input.value.style.height = input.value.scrollHeight + 'px';
     }
 }
+
+onMounted(() => {
+    adjustHeight()
+})
 </script>
 
 <template>
     <textarea
         class="border-gray-300 dark:border-gray-700 dark:bg-light dark:text-gray-900 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
         :value="modelValue"
-        @input="onINputChange"
+        @input="onInputChange"
         ref="input"
     ></textarea>
 </template>

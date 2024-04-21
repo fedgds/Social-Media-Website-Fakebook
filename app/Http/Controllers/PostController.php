@@ -6,6 +6,7 @@ use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -25,7 +26,9 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post)
     {
-        //
+        $post->update($request->validated());
+
+        return back();
     }
 
     /**
@@ -33,6 +36,14 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $id = Auth::id();
+
+        if($post->user_id != $id) {
+            return response("You don't have permission to delete this post", 403);
+        }
+
+        $post->delete();
+
+        return back();
     }
 }
