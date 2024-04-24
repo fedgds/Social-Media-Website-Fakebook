@@ -1,7 +1,123 @@
-<template>
+  <script setup>
+  import { computed, onMounted, onUpdated, reactive, ref, watch } from 'vue'
+  import {
+    TransitionRoot,
+    TransitionChild,
+    Dialog,
+    DialogPanel,
+    DialogTitle,
+  } from '@headlessui/vue'
+  import InputTextarea from '@/Components/InputTextarea.vue';
+  import PostUserHeader from '@/Components/app/PostUserHeader.vue';
+  import { XMarkIcon, PaperClipIcon, BookmarkIcon } from '@heroicons/vue/24/solid'
+  import { useForm } from "@inertiajs/vue3";
+  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { isImage } from '@/helpers.js';
+
+  const editor = ClassicEditor;
+
+  const editorConfig = {
+    toolbar: ['heading', '|', 'bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'blockQuote']
+  }
+
+  const props = defineProps({
+    post: {
+        type: Object,
+        required: true
+    },
+    modelValue: Boolean
+  })
+
+  const attachmentFiles = ref([])
+
+  const form = useForm({
+    id: null,
+    body: '',
+    attachments: []
+  })
+
+  const show = computed({
+    get: () => props.modelValue,
+    set: (value) => emit('update:modelValue', value)
+  })
+
+  const emit = defineEmits(['update:modelValue'])
+
+  watch(() => props.post, () => {
+    form.id = props.post.id
+    form.body = props.post.body
+  }, {immediate: true ,deep: true})
+
+
+  function closeModal() {
+    show.value = false
+    resetModal()
+  }
+
+  function resetModal() {
+    form.reset()
+    attachmentFiles.value = []
+  }
+
+  //  Gửi dữ liệu tới route
+  function submit() {
+    form.attachments = attachmentFiles.value.map(myFile => myFile.file)
+    if(form.id){
+      form.put(route('post.update', props.post.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+          show.value = false
+          closeModal()
+        }
+      })
+    } else {
+      form.post(route('post.create'), {
+        preserveScroll: true,
+        onSuccess: () => {
+          show.value = false
+          closeModal()
+        }
+      });
+    }
+  }
+
+  async function onAttachmentChoose($event) {
+    for (const file of $event.target.files) {
+      const myFile = {
+        file,
+        url: await readFile(file)
+      }
+      
+      attachmentFiles.value.push(myFile)
+    }
+    $event.target.value = null;
+  }
+
+  async function readFile(file) {
+    return new Promise((res, rej) => {
+      if(isImage(file)) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          res(reader.result)
+        }
+        reader.onerror = rej
+
+        reader.readAsDataURL(file);
+      }else {
+        res(null)
+      }
+    })
+  }
+
+  function removeFile(myFile) {
+    attachmentFiles.value = attachmentFiles.value .filter(f => f != myFile)
+  }
+  </script>
+
+  <template>
   <teleport to="body">
     <TransitionRoot appear :show="show" as="template">
-      <Dialog as="div" @close="closeModal" class="relative z-10">
+      <Dialog as="div" @close="closeModal" class="relative z-50">
         <TransitionChild
           as="template"
           enter="duration-300 ease-out"
@@ -42,15 +158,49 @@
                 <div class="p-4">
                   <PostUserHeader :post="post" :show-time="false" class="mb-4"/>
                   <ckeditor :editor="editor" v-model="form.body" :config="editorConfig"></ckeditor>
-                  <!-- <InputTextarea v-model="form.body" class="mb-3 w-full"/> -->
+                  <!--  -->
+                  <div class="grid gap-3 mb-3" :class="[
+                      attachmentFiles.length == 1 ? 'grid-cols-1' : 'grid-cols-2'
+                  ]">
+                    <template v-for="myFile of attachmentFiles" :key="myFile.id">
+                        
+                        <div class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative">
+                            
+                          
+                          <button @click="removeFile(myFile)" class="absolute z-20 right-1 top-1 w-7 h-7 flex items-center justify-center bg-black/15 hover:bg-black/30 text-white rounded-full">
+                            <XMarkIcon class="w-5 h-5" />
+                          </button>
+
+                          <img v-if="isImage(myFile.file)" 
+                          :src="myFile.url" 
+                          class="object-contain aspect-square">
+
+                          <template v-else>
+                              <PaperClipIcon class="w-10 h-10" />
+                              <small class="text-center">{{ myFile.file.name }}</small>
+                          </template>
+                        </div>
+                    </template>
+                  </div>
+                  <!--  -->
                 </div>
   
-                <div class="py-3 px-4">
+                <div class="py-3 px-4 flex gap-4 justify-between">
                   <button
                     type="button"
-                    class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full"
+                    class="relative flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full"
                     @click="submit"
                   >
+                    <PaperClipIcon class="w-4 h-4 mr-2" />
+                    Attach Files
+                    <input @click.stop @change="onAttachmentChoose" type="file" multiple class="absolute left-0 right-0 top-0 bottom-0 opacity-0">
+                  </button>
+                  <button
+                    type="button"
+                    class="flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full"
+                    @click="submit"
+                  >
+                    <BookmarkIcon class="w-4 h-4 mr-2" />
                     Submit
                   </button>
                 </div>
@@ -62,77 +212,4 @@
     </TransitionRoot>
   </teleport>
   </template>
-  
-  <script setup>
-  import { computed, onMounted, onUpdated, reactive, ref, watch } from 'vue'
-  import {
-    TransitionRoot,
-    TransitionChild,
-    Dialog,
-    DialogPanel,
-    DialogTitle,
-  } from '@headlessui/vue'
-  import InputTextarea from '@/Components/InputTextarea.vue';
-  import PostUserHeader from '@/Components/app/PostUserHeader.vue';
-  import { XMarkIcon } from '@heroicons/vue/24/solid'
-  import { useForm } from "@inertiajs/vue3";
-  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-
-  const editor = ClassicEditor;
-
-  const editorConfig = {
-    toolbar: ['heading', '|', 'bold', 'italic', '|', 'link', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'blockQuote']
-  }
-
-  const props = defineProps({
-    post: {
-        type: Object,
-        required: true
-    },
-    modelValue: Boolean
-  })
-
-  const form = useForm({
-    id: null,
-    body: ''
-  })
-
-  const show = computed({
-    get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value)
-  })
-
-  const emit = defineEmits(['update:modelValue'])
-
-  watch(() => props.post, () => {
-    form.id = props.post.id
-    form.body = props.post.body
-  }, {immediate: true ,deep: true})
-
-
-  function closeModal() {
-    show.value = false
-  }
-  //  Gửi dữ liệu tới route
-  function submit() {
-    if(form.id){
-      form.put(route('post.update', props.post.id), {
-        preserveScroll: true,
-        onSuccess: () => {
-          show.value = false
-          form.reset()
-        }
-      })
-    } else {
-      form.post(route('post.create'), {
-        preserveScroll: true,
-        onSuccess: () => {
-          show.value = false
-          form.reset()
-        }
-      });
-    }
-
-  }
-  </script>
   
