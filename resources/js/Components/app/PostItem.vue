@@ -54,7 +54,7 @@ function deletePost() {
                 leave-to-class="transform scale-95 opacity-0"
             >
                 <MenuItems
-                class="absolute right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
+                class="z-40 absolute right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
                 >
                 <div class="px-1 py-1">
                     <MenuItem v-slot="{ active }">
@@ -115,13 +115,13 @@ function deletePost() {
                 
                 
                 <div class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative">
-                    <div v-if="index === 3" class="absolute left-0 top-0 right-0 bottom-0 z-10 bg-black/50 text-white flex items-center justify-center text-2xl">
+                    <div v-if="index === 3 && post.attachments.length > 4" class="absolute left-0 top-0 right-0 bottom-0 z-10 bg-black/50 text-white flex items-center justify-center text-2xl">
                         +{{ post.attachments.length - 4 }} more
                     </div>
                     <!-- Download -->
-                    <button class="z-20 opacity-0 group-hover:opacity-100 transition-all w-8 h-8 flex items-center justify-center text-gray-100 bg-gray-700 rounded absolute right-2 top-2 cursor-pointer hover:bg-gray-800">
+                    <a :href="route('post.download', attachment)" class="z-20 opacity-0 group-hover:opacity-100 transition-all w-8 h-8 flex items-center justify-center text-gray-100 bg-gray-700 rounded absolute right-2 top-2 cursor-pointer hover:bg-gray-800">
                         <ArrowDownTrayIcon class="w-4 h-4"/>
-                    </button>
+                    </a>
 
                     <img v-if="isImage(attachment)" 
                     :src="attachment.url" 
