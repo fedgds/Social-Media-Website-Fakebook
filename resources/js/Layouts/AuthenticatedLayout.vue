@@ -61,16 +61,16 @@ const authUser = usePage().props.auth.user;
 
                                 <template #content>
                                     <DropdownLink :href="route('profile', {username: authUser.username})">
-                                        Profile 
+                                        Trang cá nhân 
                                     </DropdownLink>
                                     <DropdownLink :href="route('logout')" method="post" as="button">
-                                        Log Out
+                                        Đăng xuất
                                     </DropdownLink>
                                 </template>
                             </Dropdown>
                             <div v-else>
                                 <Link :href="route('login')">
-                                    Login
+                                    Đăng nhập
                                 </Link>
                             </div>
                         </div>
@@ -126,16 +126,16 @@ const authUser = usePage().props.auth.user;
                         </div>
 
                         <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile', {username: authUser.username})"> Profile </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('profile', {username: authUser.username})"> Trang cá nhân </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
+                                Đăng xuất
                             </ResponsiveNavLink>
                         </div>
                     </div>
                 </template>
                 <template v-else>
                     <Link :href="route('login')">
-                        Login
+                        Đăng nhập
                     </Link>
                 </template>
             </div>

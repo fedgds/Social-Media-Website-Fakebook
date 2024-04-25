@@ -7,7 +7,6 @@
     DialogPanel,
     DialogTitle,
   } from '@headlessui/vue'
-  import InputTextarea from '@/Components/InputTextarea.vue';
   import PostUserHeader from '@/Components/app/PostUserHeader.vue';
   import { XMarkIcon, PaperClipIcon, BookmarkIcon, ArrowUturnLeftIcon } from '@heroicons/vue/24/solid'
   import { useForm } from "@inertiajs/vue3";
@@ -183,7 +182,7 @@
                         <div class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative">
                             
                           <div v-if="myFile.deleted" class="absolute z-10 left-0 bottom-0 right-0 py-2 px-3 text-sm bg-black text-white flex justify-between items-center">
-                            To be deleted
+                            Đã được xóa
                             <ArrowUturnLeftIcon @click="undoDelete(myFile)" class="w-4 h-4 cursor-pointer"/>
                           </div>
                           
@@ -196,7 +195,7 @@
                           class="object-contain aspect-square" :class="myFile.deleted ? 'opacity-50' : ''">
 
                           <div v-else class="felx flex-col justify-center items-center" :class="myFile.deleted ? 'opacity-50' : ''">
-                              <PaperClipIcon class="w-10 h-10 mb-3" />
+                              <PaperClipIcon class="w-full h-10 mb-3" />
                               <small class="text-center">
                                 {{ (myFile.file || myFile).name }}
                               </small>
@@ -212,10 +211,9 @@
                   <button
                     type="button"
                     class="relative flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 w-full"
-                    @click="submit"
                   >
                     <PaperClipIcon class="w-4 h-4 mr-2" />
-                    Attach Files
+                    Chọn file
                     <input @click.stop @change="onAttachmentChoose" type="file" multiple class="absolute left-0 right-0 top-0 bottom-0 opacity-0">
                   </button>
                   <button
@@ -224,7 +222,7 @@
                     @click="submit"
                   >
                     <BookmarkIcon class="w-4 h-4 mr-2" />
-                    Submit
+                    Lưu
                   </button>
                 </div>
               </DialogPanel>

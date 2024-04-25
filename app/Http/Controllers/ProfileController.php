@@ -41,7 +41,7 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return to_route('profile', $request->user())->with('success', 'Your profile details were update !');
+        return to_route('profile', $request->user())->with('success', 'Thông tin cá nhân của bạn đã được cập nhật !');
     }
 
     /**
@@ -87,7 +87,7 @@ class ProfileController extends Controller
             // Upload lên server và lưu path vào CSDL
             $path = $cover->store('user-/'.$user->id, 'public');
             $user->update(['cover_path' => $path]);
-            $success = 'Your cover image was updated !';
+            $success = 'Ảnh bìa đã được cập nhật !';
         }
 
         if($avatar) {
@@ -98,7 +98,7 @@ class ProfileController extends Controller
             // Upload lên server và lưu path vào CSDL
             $path = $avatar->store('user-/'.$user->id, 'public');
             $user->update(['avatar_path' => $path]);
-            $success = 'Your avatar image was updated !';
+            $success = 'Ảnh đại diện đã được cập nhật !';
         }
         
         // session('success', 'Cover image was  updated!');

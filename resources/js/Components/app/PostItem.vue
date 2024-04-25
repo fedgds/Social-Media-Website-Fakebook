@@ -1,18 +1,17 @@
 <script setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
-import { ChevronDownIcon, PencilIcon, TrashIcon, EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
+import { ChevronDownIcon, PencilIcon, TrashIcon, EllipsisVerticalIcon, PaperClipIcon } from '@heroicons/vue/20/solid'
 import { ChatBubbleLeftRightIcon, HandThumbUpIcon, ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { router } from '@inertiajs/vue3';
 import { isImage } from '@/helpers.js';
 
-
 const props = defineProps({
     post: Object
 });
 
-const emit = defineEmits(['editClick'])
+const emit = defineEmits(['editClick', 'attachmentClick'])
 
 
 function openEditModal() {
@@ -25,6 +24,10 @@ function deletePost() {
             preserveScroll: true
         })
     }
+}
+
+function openAttachment(index) {
+    emit('attachmentClick', props.post, index)
 }
 
 </script>
@@ -69,7 +72,7 @@ function deletePost() {
                             class="mr-2 h-5 w-5"
                             aria-hidden="true"
                         />
-                        Edit
+                        Sửa
                     </button>
                     </MenuItem>
 
@@ -85,7 +88,7 @@ function deletePost() {
                             class="mr-2 h-5 w-5"
                             aria-hidden="true"
                         />
-                        Delete
+                        Xóa
                     </button>
                     </MenuItem>
                 </div>
@@ -114,9 +117,9 @@ function deletePost() {
             <template v-for="(attachment, index) of post.attachments.slice(0, 4)" :key="attachment.id">
                 
                 
-                <div class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative">
+                <div @click="openAttachment(index)" class="group aspect-square bg-blue-100 flex flex-col items-center justify-center text-gray-500 relative cursor-pointer">
                     <div v-if="index === 3 && post.attachments.length > 4" class="absolute left-0 top-0 right-0 bottom-0 z-10 bg-black/50 text-white flex items-center justify-center text-2xl">
-                        +{{ post.attachments.length - 4 }} more
+                        +{{ post.attachments.length - 4 }} 
                     </div>
                     <!-- Download -->
                     <a :href="route('post.download', attachment)" class="z-20 opacity-0 group-hover:opacity-100 transition-all w-8 h-8 flex items-center justify-center text-gray-100 bg-gray-700 rounded absolute right-2 top-2 cursor-pointer hover:bg-gray-800">
@@ -124,26 +127,24 @@ function deletePost() {
                     </a>
 
                     <img v-if="isImage(attachment)" 
-                    :src="attachment.url" 
-                    class="object-contain aspect-square">
+                        :src="attachment.url" 
+                        class="object-contain aspect-square">
 
-                    <template v-else>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                        </svg>
+                    <div v-else class="felx flex-col justify-center items-center">
+                        <PaperClipIcon class="w-10 h-10 mb-3" />
                         <small>{{ attachment.name }}</small>
-                    </template>
+                    </div>
                 </div>
             </template>
         </div>
         <div class="flex gap-2">
             <button class="text-gray-800 flex gap-1 items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 py-2 px-4 flex-1">
                 <HandThumbUpIcon class="w-5 h-5 mr-2"/>
-                Like
+                Thích
             </button>
             <button class="text-gray-800 flex gap-1 items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 py-2 px-4 flex-1">
                 <ChatBubbleLeftRightIcon class="w-5 h-5 mr-2"/>
-                Comment
+                Bình luận
             </button>
         </div>
     </div>

@@ -26,10 +26,10 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Profile Information</h2>
+            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Thông tin cá nhân</h2>
 
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Update your account's profile information and email address.
+                Cập nhật thông tin tài khoản và địa chỉ email
             </p>
         </header>
 
@@ -81,14 +81,14 @@ const form = useForm({
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">
                 <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                    Your email address is unverified.
+                    Địa chỉ email của bạn chưa được xác minh
                     <Link
                         :href="route('verification.send')"
                         method="post"
                         as="button"
                         class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                     >
-                        Click here to re-send the verification email.
+                        Nhấn vào đây để gửi lại email xác minh
                     </Link>
                 </p>
 
@@ -96,7 +96,7 @@ const form = useForm({
                     v-show="status === 'verification-link-sent'"
                     class="mt-2 font-medium text-sm text-green-600 dark:text-green-400"
                 >
-                    A new verification link has been sent to your email address.
+                    Một mã xác minh mới đã được gửi đến địa chỉ email của bạn
                 </div>
             </div>
 
@@ -109,7 +109,7 @@ const form = useForm({
                     leave-active-class="transition ease-in-out"
                     leave-to-class="opacity-0"
                 >
-                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600 dark:text-gray-400">Saved.</p>
+                    <p v-if="form.recentlySuccessful" class="text-sm text-gray-600 dark:text-gray-400">Lưu thành công</p>
                 </Transition>
             </div>
         </form>

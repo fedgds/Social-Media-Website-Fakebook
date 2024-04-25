@@ -25,7 +25,7 @@ class ProfileUpdateRequest extends FormRequest
     public function  messages()
     {
         return [
-            'regex' => 'Username can only contain alphanumeric  characters, dash (-) and dot (.)'
+            'regex' => 'Tên người dùng chỉ có thể chứa các ký tự chữ và số, dấu gạch ngang (-) và dấu chấm (.)'
         ];
     }
 }
