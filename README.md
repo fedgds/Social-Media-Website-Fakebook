@@ -4,6 +4,7 @@
         <div><b>1. Clone the project: </b>
             <br>git clone https://github.com/fedgds/Social-Media-Website-Laravel10-VueJS3-TailwindCSS.git
         </div>
+        ```bash
         <div><b>2. Install: </b>
             <br>- composer install
             <br>- npm install
