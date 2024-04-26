@@ -104,7 +104,7 @@
                       :src="attachment.url" 
                       class="max-w-full max-h-full">
 
-                    <div v-else class="felx flex-col justify-center items-center text-center p-32 text-gray-100">
+                    <div v-else class="felx flex-col justify-center items-center text-center p-32 text-gray-100 px-3">
                         <PaperClipIcon class="h-10 mb-3 w-full" />
                         <small>{{ attachment.name }}</small>
                     </div>

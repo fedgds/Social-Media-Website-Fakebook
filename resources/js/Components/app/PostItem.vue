@@ -19,7 +19,7 @@ function openEditModal() {
 }
 
 function deletePost() {
-    if(window.confirm('Are  you sure to delete this post?')){
+    if(window.confirm('Bạn có chắc muốn xóa bài viết này?')){
         router.delete(route('post.destroy', props.post), {
             preserveScroll: true
         })
@@ -105,7 +105,7 @@ function openAttachment(index) {
                     </DisclosurePanel>
                     <div class="flex justify-end">
                         <DisclosureButton class="text-blue-500 hover:underline">
-                            {{open ? 'Read less' : 'Read More'}}
+                            {{open ? 'Thu gọn' : 'Xem thêm'}}
                         </DisclosureButton>
                     </div>
                 </template>
@@ -122,7 +122,7 @@ function openAttachment(index) {
                         +{{ post.attachments.length - 4 }} 
                     </div>
                     <!-- Download -->
-                    <a :href="route('post.download', attachment)" class="z-20 opacity-0 group-hover:opacity-100 transition-all w-8 h-8 flex items-center justify-center text-gray-100 bg-gray-700 rounded absolute right-2 top-2 cursor-pointer hover:bg-gray-800">
+                    <a @click.stop :href="route('post.download', attachment)" class="z-20 opacity-0 group-hover:opacity-100 transition-all w-8 h-8 flex items-center justify-center text-gray-100 bg-gray-700 rounded absolute right-2 top-2 cursor-pointer hover:bg-gray-800">
                         <ArrowDownTrayIcon class="w-4 h-4"/>
                     </a>
 
@@ -130,8 +130,8 @@ function openAttachment(index) {
                         :src="attachment.url" 
                         class="object-contain aspect-square">
 
-                    <div v-else class="felx flex-col justify-center items-center">
-                        <PaperClipIcon class="w-10 h-10 mb-3" />
+                    <div v-else class="felx flex-col justify-center items-center px-3">
+                        <PaperClipIcon class="h-10 mb-3 w-full" />
                         <small>{{ attachment.name }}</small>
                     </div>
                 </div>
