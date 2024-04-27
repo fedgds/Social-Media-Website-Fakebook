@@ -6,6 +6,7 @@ import { ChatBubbleLeftRightIcon, HandThumbUpIcon, ArrowDownTrayIcon } from '@he
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { router } from '@inertiajs/vue3';
 import { isImage } from '@/helpers.js';
+import axiosClient from "@/axiosClient.js";
 
 const props = defineProps({
     post: Object
@@ -28,6 +29,16 @@ function deletePost() {
 
 function openAttachment(index) {
     emit('attachmentClick', props.post, index)
+}
+
+function sendReaction() {
+    axiosClient.post(route('post.reaction', props.post), {
+        reaction: 'like'
+    })
+        .then(({data}) => {
+            props.post.current_user_has_reaction = data.current_user_has_reaction
+            props.post.num_of_reactions = data.num_of_reactions;
+        })
 }
 
 </script>
@@ -138,11 +149,21 @@ function openAttachment(index) {
             </template>
         </div>
         <div class="flex gap-2">
-            <button class="text-gray-800 flex gap-1 items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 py-2 px-4 flex-1">
-                <HandThumbUpIcon class="w-5 h-5 mr-2"/>
-                Thích
+            <button
+                @click="sendReaction"
+                class="text-gray-800 dark:text-gray-100 flex gap-1 items-center justify-center  rounded-lg py-2 px-4 flex-1"
+                :class="[
+                    post.current_user_has_reaction ?
+                        'bg-sky-200 dark:bg-sky-900 hover:bg-sky-200 dark:hover:bg-sky-950' :
+                        'bg-gray-100 dark:bg-slate-900 dark:hover:bg-slate-800 '
+                ]"
+            >
+                <HandThumbUpIcon class="w-5 h-5"/>
+                <span class="mr-2">{{ post.num_of_reactions }}</span>
+                {{ post.current_user_has_reaction ? 'Unlike' : 'Like' }}
             </button>
-            <button class="text-gray-800 flex gap-1 items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 py-2 px-4 flex-1">
+            <button 
+                class="text-gray-800 flex gap-1 items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 py-2 px-4 flex-1">
                 <ChatBubbleLeftRightIcon class="w-5 h-5 mr-2"/>
                 Bình luận
             </button>
