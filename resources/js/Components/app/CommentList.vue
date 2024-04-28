@@ -1,9 +1,9 @@
 <script setup>
 import {ChatBubbleLeftEllipsisIcon, HandThumbUpIcon} from "@heroicons/vue/24/outline/index.js";
-// import ReadMoreReadLess from "@/Components/app/ReadMoreReadLess.vue";
+import ReadMoreReadLess from "@/Components/app/ReadMoreReadLess.vue";
 import IndigoButton from "@/Components/app/IndigoButton.vue";
 import InputTextarea from "@/Components/InputTextarea.vue";
-// import EditDeleteDropdown from "@/Components/app/EditDeleteDropdown.vue";
+import EditDeleteDropdown from "@/Components/app/EditDeleteDropdown.vue";
 import {usePage, Link} from "@inertiajs/vue3";
 import {ref} from "vue";
 import axiosClient from "@/axiosClient.js";
@@ -12,6 +12,7 @@ import {Disclosure, DisclosureButton, DisclosurePanel} from "@headlessui/vue";
 const authUser = usePage().props.auth.user;
 
 const newCommentText = ref('')
+const editingComment = ref(null);
 
 const props = defineProps({
     post: Object,
@@ -35,6 +36,38 @@ function createComment() {
             emit('commentCreate', data)
         })
 }
+
+function startCommentEdit(comment) {
+    editingComment.value = {
+        id: comment.id,
+        comment: comment.comment.replace(/<br\s*\/?>/gi, '\n')
+    }
+}
+
+function deleteComment(comment) {
+    if (!window.confirm('Bạn có chắc muốn xóa bình luận này?')) {
+        return false;
+    }
+    axiosClient.delete(route('comment.delete', comment.id))
+        .then(({data}) => {
+
+            props.post.comments = props.post.comments.filter(c => c.id != comment.id)
+            props.num_of_comments --;
+        })
+}
+
+function updateComment() {
+    axiosClient.put(route('comment.update', editingComment.value.id), editingComment.value)
+        .then(({data}) => {
+            editingComment.value = null
+            props.data.comments = props.data.comments.map((c) => {
+                if (c.id === data.id) {
+                    return data
+                }
+                return c;
+            })
+        })
+}
 </script>
 
 <template>
@@ -44,7 +77,7 @@ function createComment() {
                  class="w-[40px] rounded-full border-2 transition-all hover:border-blue-500"/>
         </Link>
         <div class="flex flex-1">
-            <InputTextarea v-model="newCommentText" placeholder="Enter your comment here" rows="1"
+            <InputTextarea v-model="newCommentText" placeholder="Gửi bình luận" rows="1"
                            class="w-full max-h-[160px] resize-none rounded-r-none"></InputTextarea>
             <IndigoButton @click="createComment" class="rounded-l-none w-[100px] ">Submit</IndigoButton>
         </div>
@@ -54,7 +87,7 @@ function createComment() {
             <div class="flex justify-between gap-2">
                 <div class="flex gap-2">
                     <a href="javascript:void(0)">
-                        <img 
+                        <img :src="authUser.avatar_url"
                             class="w-[40px] rounded-full border-2 transition-all hover:border-blue-500"/>
                     </a>
                     <div>
@@ -67,32 +100,28 @@ function createComment() {
                             {{ comment.updated_at }}
                         </small>
                     </div>
-                    <div>
-                        {{ comment.comment }}
-                    </div>
                 </div>
-                
-                <!-- <EditDeleteDropdown :user="comment.user"
+                <EditDeleteDropdown :user="comment.user"
                                     :post="post"
                                     :comment="comment"
                                     @edit="startCommentEdit(comment)"
-                                    @delete="deleteComment(comment)"/> -->
+                                    @delete="deleteComment(comment)"/>
             </div>
-            <!-- <div class="pl-12">
+            <div class="pl-12">
                 <div v-if="editingComment && editingComment.id === comment.id">
                     <InputTextarea v-model="editingComment.comment" placeholder="Enter your comment here"
                                    rows="1" class="w-full max-h-[160px] resize-none"></InputTextarea>
 
                     <div class="flex gap-2 justify-end">
-                        <button @click="editingComment = null" class="rounded-r-none text-indigo-500">cancel
+                        <button @click="editingComment = null" class="rounded-r-none text-red-500">Hủy
                         </button>
-                        <IndigoButton @click="updateComment" class="w-[100px]">update
+                        <IndigoButton @click="updateComment" class="w-[100px]">Cập nhật
                         </IndigoButton>
                     </div>
                 </div>
                 <ReadMoreReadLess v-else :content="comment.comment" content-class="text-sm flex flex-1"/>
                 <Disclosure>
-                    <div class="mt-1 flex gap-2">
+                    <!-- <div class="mt-1 flex gap-2">
                         <button @click="sendCommentReaction(comment)"
                                 class="flex items-center text-xs text-indigo-500 py-0.5 px-1  rounded-lg"
                                 :class="[
@@ -110,7 +139,7 @@ function createComment() {
                             <span class="mr-2">{{ comment.num_of_comments }}</span>
                             comments
                         </DisclosureButton>
-                    </div>
+                    </div> -->
                     <DisclosurePanel class="mt-3">
                         <CommentList :post="post"
                                     :data="{comments: comment.comments}"
@@ -119,7 +148,7 @@ function createComment() {
                                     @comment-delete="onCommentDelete"/>
                     </DisclosurePanel>
                 </Disclosure>
-            </div> -->
+            </div>
         </div>
         <!-- <div v-if="!data.comments.length" class="py-4 text-center dark:text-gray-100">
             There are no comments.

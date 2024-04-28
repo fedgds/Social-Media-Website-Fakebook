@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Enums\ReactionEnum;
 use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdateCommentRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
@@ -176,6 +177,28 @@ class PostController extends Controller
         // $post->user->notify(new CommentCreated($comment, $post));
 
         return response(new CommentResource($comment), 201);
+    }
+
+    public function updateComment(UpdateCommentRequest $request, Comment $comment)
+    {
+        $data = $request->validated();
+
+        $comment->update([
+            'comment' => nl2br($data['comment'])
+        ]);
+
+        return new CommentResource($comment);
+    }
+
+    public function deleteComment(Comment $comment)
+    {
+        if($comment->user_id != Auth::id()) {
+            return response("Bạn không có quyền xóa bình luận này", 403);
+        }
+
+        $comment->delete();
+
+        return response('', 204);
     }
 
 }
