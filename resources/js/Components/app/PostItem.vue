@@ -4,13 +4,17 @@ import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { ChevronDownIcon, PencilIcon, TrashIcon, EllipsisVerticalIcon, PaperClipIcon } from '@heroicons/vue/20/solid'
 import { ChatBubbleLeftRightIcon, HandThumbUpIcon, ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import PostUserHeader from '@/Components/app/PostUserHeader.vue';
-import { router } from '@inertiajs/vue3';
+import CommentList from "@/Components/app/CommentList.vue";
+import { router, usePage } from '@inertiajs/vue3';
 import { isImage } from '@/helpers.js';
 import axiosClient from "@/axiosClient.js";
+import ReadMoreReadLess from "@/Components/app/ReadMoreReadLess.vue";
 
 const props = defineProps({
     post: Object
 });
+
+const authUser = usePage().props.auth.user;
 
 const emit = defineEmits(['editClick', 'attachmentClick'])
 
@@ -108,19 +112,7 @@ function sendReaction() {
             </Menu>
         </div>
         <div class="mb-3">
-            <Disclosure v-slot="{ open }">
-                <div class="ck-content-output" v-if="!open" v-html="post.body.substring(0, 200)" />
-                <template v-if="post.body.length > 200">
-                    <DisclosurePanel>
-                        <div class="ck-content-output" v-html="post.body" />
-                    </DisclosurePanel>
-                    <div class="flex justify-end">
-                        <DisclosureButton class="text-blue-500 hover:underline">
-                            {{open ? 'Thu gọn' : 'Xem thêm'}}
-                        </DisclosureButton>
-                    </div>
-                </template>
-            </Disclosure>
+            <!-- <ReadMoreReadLess /> -->
         </div>
         <div class="grid gap-3 mb-3" :class="[
             post.attachments.length == 1 ? 'grid-cols-1' : 'grid-cols-2'
@@ -148,26 +140,35 @@ function sendReaction() {
                 </div>
             </template>
         </div>
-        <div class="flex gap-2">
-            <button
-                @click="sendReaction"
-                class="text-gray-800 dark:text-gray-100 flex gap-1 items-center justify-center  rounded-lg py-2 px-4 flex-1"
-                :class="[
+        <Disclosure v-slot="{  }">
+            <!--Like & Comment-->
+            <div class="flex gap-10">
+                <button
+                    @click="sendReaction"
+                    class="text-gray-800 dark:text-gray-100 flex gap-1 items-center justify-center  rounded-lg py-2 px-4 flex-1"
+                    :class="[
                     post.current_user_has_reaction ?
-                        'bg-sky-200 dark:bg-sky-900 hover:bg-sky-200 dark:hover:bg-sky-950' :
-                        'bg-gray-100 dark:bg-slate-900 dark:hover:bg-slate-800 '
+                     'bg-sky-200 dark:bg-sky-900 hover:bg-sky-200 dark:hover:bg-sky-950' :
+                     'bg-gray-100 dark:bg-slate-900 dark:hover:bg-slate-800 '
                 ]"
-            >
-                <HandThumbUpIcon class="w-5 h-5"/>
-                <span class="mr-2">{{ post.num_of_reactions }}</span>
-                {{ post.current_user_has_reaction ? 'Unlike' : 'Like' }}
-            </button>
-            <button 
-                class="text-gray-800 flex gap-1 items-center justify-center bg-gray-100 rounded-lg hover:bg-gray-200 py-2 px-4 flex-1">
-                <ChatBubbleLeftRightIcon class="w-5 h-5 mr-2"/>
-                Bình luận
-            </button>
-        </div>
+                >
+                    <HandThumbUpIcon class="w-5 h-5"/>
+                    <span class="mr-2">{{ post.num_of_reactions }}</span>
+                    {{ post.current_user_has_reaction ? 'Unlike' : 'Like' }}
+                </button>
+                <DisclosureButton
+                    class="text-gray-800 dark:text-gray-100 flex gap-1 items-center justify-center bg-gray-100 dark:bg-slate-900 dark:hover:bg-slate-800 rounded-lg hover:bg-gray-200  py-2 px-4 flex-1"
+                >
+                    <ChatBubbleLeftRightIcon class="w-5 h-5"/>
+                    <span class="mr-2">{{ post.num_of_comments }}</span>
+                    Bình luận
+                </DisclosureButton>
+            </div>
+
+            <DisclosurePanel class="comment-list mt-3 max-h-[400px] overflow-auto">
+                <CommentList :post="post" :data="{comments: post.comments}"/>
+            </DisclosurePanel>
+        </Disclosure>
     </div>
 </template>
 
