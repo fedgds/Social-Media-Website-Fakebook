@@ -68,6 +68,30 @@ function updateComment() {
             })
         })
 }
+
+function sendCommentReaction(comment) {
+    axiosClient.post(route('comment.reaction', comment.id), {
+        reaction: 'like'
+    })
+        .then(({data}) => {
+            comment.current_user_has_reaction = data.current_user_has_reaction
+            comment.num_of_reactions = data.num_of_reactions;
+        })
+}
+
+function onCommentCreate(comment) {
+    if (props.parentComment) {
+        props.parentComment.num_of_comments++;
+    }
+    emit('commentCreate', comment)
+}
+
+function onCommentDelete(comment) {
+    if (props.parentComment) {
+        props.parentComment.num_of_comments--;
+    }
+    emit('commentDelete', comment)
+}
 </script>
 
 <template>
@@ -121,7 +145,7 @@ function updateComment() {
                 </div>
                 <ReadMoreReadLess v-else :content="comment.comment" content-class="text-sm flex flex-1"/>
                 <Disclosure>
-                    <!-- <div class="mt-1 flex gap-2">
+                    <div class="mt-1 flex gap-2">
                         <button @click="sendCommentReaction(comment)"
                                 class="flex items-center text-xs text-indigo-500 py-0.5 px-1  rounded-lg"
                                 :class="[
@@ -131,15 +155,15 @@ function updateComment() {
                                         ]">
                             <HandThumbUpIcon class="w-3 h-3 mr-1"/>
                             <span class="mr-2">{{ comment.num_of_reactions }}</span>
-                            {{ comment.current_user_has_reaction ? 'unlike' : 'like' }}
+                            {{ comment.current_user_has_reaction ? 'Unlike' : 'Like' }}
                         </button>
                         <DisclosureButton
                             class="flex items-center text-xs text-indigo-500 py-0.5 px-1 hover:bg-indigo-100 rounded-lg">
                             <ChatBubbleLeftEllipsisIcon class="w-3 h-3 mr-1"/>
                             <span class="mr-2">{{ comment.num_of_comments }}</span>
-                            comments
+                            Phản hồi
                         </DisclosureButton>
-                    </div> -->
+                    </div>
                     <DisclosurePanel class="mt-3">
                         <CommentList :post="post"
                                     :data="{comments: comment.comments}"
@@ -150,8 +174,8 @@ function updateComment() {
                 </Disclosure>
             </div>
         </div>
-        <!-- <div v-if="!data.comments.length" class="py-4 text-center dark:text-gray-100">
-            There are no comments.
-        </div> -->
+        <div v-if="!data.comments.length" class="py-4 text-center dark:text-gray-100">
+            Chưa có bình luận nào
+        </div>
     </div>
 </template>

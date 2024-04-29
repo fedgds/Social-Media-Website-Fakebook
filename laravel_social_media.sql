@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 25, 2024 lúc 03:35 PM
+-- Thời gian đã tạo: Th4 29, 2024 lúc 06:11 PM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.2.4
 
@@ -35,6 +35,14 @@ CREATE TABLE `comments` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `comments`
+--
+
+INSERT INTO `comments` (`id`, `post_id`, `comment`, `user_id`, `created_at`, `updated_at`) VALUES
+(1, 23, 'Hi there', 1, '2024-04-29 07:48:00', '2024-04-29 07:48:00'),
+(2, 23, 'second comment', 1, '2024-04-29 09:10:56', '2024-04-29 09:10:56');
 
 -- --------------------------------------------------------
 
@@ -263,16 +271,27 @@ INSERT INTO `post_attachments` (`id`, `post_id`, `name`, `path`, `mime`, `size`,
 -- --------------------------------------------------------
 
 --
--- Cấu trúc bảng cho bảng `post_reactions`
+-- Cấu trúc bảng cho bảng `reactions`
 --
 
-CREATE TABLE `post_reactions` (
+CREATE TABLE `reactions` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `post_id` bigint(20) UNSIGNED NOT NULL,
+  `object_id` bigint(20) UNSIGNED NOT NULL,
+  `object_type` varchar(255) NOT NULL DEFAULT 'App\\Models\\Post',
   `type` varchar(255) NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `reactions`
+--
+
+INSERT INTO `reactions` (`id`, `object_id`, `object_type`, `type`, `user_id`, `created_at`) VALUES
+(1, 23, 'App\\Models\\Post', 'like', 1, '2024-04-29 07:56:39'),
+(2, 22, 'App\\Models\\Post', 'like', 1, '2024-04-29 07:56:56'),
+(5, 1, 'App\\Models\\Comment', 'like', 1, '2024-04-29 09:10:24'),
+(6, 2, 'App\\Models\\Comment', 'like', 1, '2024-04-29 09:10:58');
 
 -- --------------------------------------------------------
 
@@ -385,11 +404,11 @@ ALTER TABLE `post_attachments`
   ADD KEY `post_attachments_created_by_foreign` (`created_by`);
 
 --
--- Chỉ mục cho bảng `post_reactions`
+-- Chỉ mục cho bảng `reactions`
 --
-ALTER TABLE `post_reactions`
+ALTER TABLE `reactions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `post_reactions_post_id_foreign` (`post_id`),
+  ADD KEY `post_reactions_post_id_foreign` (`object_id`),
   ADD KEY `post_reactions_user_id_foreign` (`user_id`);
 
 --
@@ -407,7 +426,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `failed_jobs`
@@ -458,10 +477,10 @@ ALTER TABLE `post_attachments`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
--- AUTO_INCREMENT cho bảng `post_reactions`
+-- AUTO_INCREMENT cho bảng `reactions`
 --
-ALTER TABLE `post_reactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `reactions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
@@ -518,10 +537,9 @@ ALTER TABLE `post_attachments`
   ADD CONSTRAINT `post_attachments_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`);
 
 --
--- Các ràng buộc cho bảng `post_reactions`
+-- Các ràng buộc cho bảng `reactions`
 --
-ALTER TABLE `post_reactions`
-  ADD CONSTRAINT `post_reactions_post_id_foreign` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
+ALTER TABLE `reactions`
   ADD CONSTRAINT `post_reactions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 COMMIT;
 
