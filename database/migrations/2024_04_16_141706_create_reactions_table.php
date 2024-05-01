@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('post_reactions', function (Blueprint $table) {
+        Schema::create('reactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained('posts');
+            $table->foreignId('object_id');
+            $table->string('object_type')->default('App\Models\Post');
             $table->string('type');
             $table->foreignId('user_id')->constrained('users'); 
             $table->timestamp('created_at')->nullable();

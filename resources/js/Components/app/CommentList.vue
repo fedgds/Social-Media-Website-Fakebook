@@ -16,10 +16,14 @@ const editingComment = ref(null);
 
 const props = defineProps({
     post: Object,
-    data: Object
+    data: Object,
+    parentComment: {
+        type: [Object, null],
+        default: null
+    }
 })
 
-const emit = defineEmits(['commentCreate']);
+const emit = defineEmits(['commentCreate', 'commentDelete']);
 
 function createComment() {
     axiosClient.post(route('post.comment.create', props.post), {
@@ -51,8 +55,14 @@ function deleteComment(comment) {
     axiosClient.delete(route('comment.delete', comment.id))
         .then(({data}) => {
 
-            props.post.comments = props.post.comments.filter(c => c.id != comment.id)
-            props.num_of_comments --;
+            const commentIndex = props.data.comments.findIndex(c => c.id === comment.id)
+            props.data.comments.splice(commentIndex, 1)
+            console.log(props.data.comments)
+            if (props.parentComment) {
+                props.parentComment.num_of_comments -= data.deleted;
+            }
+            props.post.num_of_comments-= data.deleted;
+            emit('commentDelete', comment)
         })
 }
 
@@ -95,15 +105,16 @@ function onCommentDelete(comment) {
 </script>
 
 <template>
-       <div v-if="authUser" class="flex gap-2 mb-3">
+    <div v-if="authUser" class="flex gap-2 mb-3">
         <Link :href="route('profile', authUser.username)">
             <img :src="authUser.avatar_url"
                  class="w-[40px] rounded-full border-2 transition-all hover:border-blue-500"/>
         </Link>
         <div class="flex flex-1">
             <InputTextarea v-model="newCommentText" placeholder="Gửi bình luận" rows="1"
-                           class="w-full max-h-[160px] resize-none rounded-r-none"></InputTextarea>
-            <IndigoButton @click="createComment" class="rounded-l-none w-[100px] ">Submit</IndigoButton>
+                           class="w-full max-h-[160px] resize-none rounded-r-none">
+            </InputTextarea>
+            <IndigoButton @click="createComment" class="rounded-l-none w-[100px] ">Gửi</IndigoButton>
         </div>
     </div>
     <div>
@@ -111,8 +122,8 @@ function onCommentDelete(comment) {
             <div class="flex justify-between gap-2">
                 <div class="flex gap-2">
                     <a href="javascript:void(0)">
-                        <img :src="authUser.avatar_url"
-                            class="w-[40px] rounded-full border-2 transition-all hover:border-blue-500"/>
+                        <img :src="comment.user.avatar_url"
+                             class="w-[40px] rounded-full border-2 transition-all hover:border-blue-500"/>
                     </a>
                     <div>
                         <h4 class="font-bold">
@@ -120,9 +131,7 @@ function onCommentDelete(comment) {
                                 {{ comment.user.name }}
                             </a>
                         </h4>
-                        <small class="text-xs text-gray-400">
-                            {{ comment.updated_at }}
-                        </small>
+                        <small class="text-xs text-gray-400">{{ comment.updated_at }}</small>
                     </div>
                 </div>
                 <EditDeleteDropdown :user="comment.user"
@@ -133,13 +142,13 @@ function onCommentDelete(comment) {
             </div>
             <div class="pl-12">
                 <div v-if="editingComment && editingComment.id === comment.id">
-                    <InputTextarea v-model="editingComment.comment" placeholder="Enter your comment here"
+                    <InputTextarea v-model="editingComment.comment" placeholder="Gửi bình luận"
                                    rows="1" class="w-full max-h-[160px] resize-none"></InputTextarea>
 
                     <div class="flex gap-2 justify-end">
-                        <button @click="editingComment = null" class="rounded-r-none text-red-500">Hủy
+                        <button @click="editingComment = null" class="rounded-r-none text-indigo-500">Hủy
                         </button>
-                        <IndigoButton @click="updateComment" class="w-[100px]">Cập nhật
+                        <IndigoButton @click="updateComment" class="w-[100px]">Sửa
                         </IndigoButton>
                     </div>
                 </div>
@@ -166,10 +175,10 @@ function onCommentDelete(comment) {
                     </div>
                     <DisclosurePanel class="mt-3">
                         <CommentList :post="post"
-                                    :data="{comments: comment.comments}"
-                                    :parent-comment="comment"
-                                    @comment-create="onCommentCreate"
-                                    @comment-delete="onCommentDelete"/>
+                                     :data="{comments: comment.comments}"
+                                     :parent-comment="comment"
+                                     @comment-create="onCommentCreate"
+                                     @comment-delete="onCommentDelete"/>
                     </DisclosurePanel>
                 </Disclosure>
             </div>

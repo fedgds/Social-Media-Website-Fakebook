@@ -104,3 +104,13 @@
   color: rgb(80, 80, 250);
   text-decoration: underline;
 }
+
+
+.comment-list::-webkit-scrollbar {
+  width: 10px;
+  background-color: transparent;
+}
+
+.comment-list::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+}

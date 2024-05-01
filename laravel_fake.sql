@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 29, 2024 lúc 06:11 PM
+-- Thời gian đã tạo: Th4 30, 2024 lúc 11:38 AM
 -- Phiên bản máy phục vụ: 10.4.28-MariaDB
 -- Phiên bản PHP: 8.2.4
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Cơ sở dữ liệu: `laravel_social_media`
+-- Cơ sở dữ liệu: `laravel_fake`
 --
 
 -- --------------------------------------------------------
@@ -33,16 +33,16 @@ CREATE TABLE `comments` (
   `comment` text NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `parent_id` bigint(20) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `comments`
 --
 
-INSERT INTO `comments` (`id`, `post_id`, `comment`, `user_id`, `created_at`, `updated_at`) VALUES
-(1, 23, 'Hi there', 1, '2024-04-29 07:48:00', '2024-04-29 07:48:00'),
-(2, 23, 'second comment', 1, '2024-04-29 09:10:56', '2024-04-29 09:10:56');
+INSERT INTO `comments` (`id`, `post_id`, `comment`, `user_id`, `created_at`, `updated_at`, `parent_id`) VALUES
+(1, 1, 'Quần đẹp', 1, '2024-04-30 02:33:02', '2024-04-30 02:33:02', NULL);
 
 -- --------------------------------------------------------
 
@@ -138,11 +138,12 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (6, '2024_04_16_141599_create_group_users_table', 1),
 (7, '2024_04_16_141601_create_posts_table', 1),
 (8, '2024_04_16_141649_create_post_attachments_table', 1),
-(9, '2024_04_16_141706_create_post_reactions_table', 1),
+(9, '2024_04_16_141706_create_reactions_table', 1),
 (10, '2024_04_16_141729_create_comments_table', 1),
 (11, '2024_04_16_141823_create_followers_table', 1),
 (12, '2024_04_16_153352_add_columns_to_users_table', 1),
-(13, '2024_04_23_144418_add_size_column_to_post_attachments_table', 2);
+(13, '2024_04_23_144418_add_size_column_to_post_attachments_table', 1),
+(14, '2024_04_30_081205_add_parent_id_to_comments', 1);
 
 -- --------------------------------------------------------
 
@@ -155,13 +156,6 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `password_reset_tokens`
---
-
-INSERT INTO `password_reset_tokens` (`email`, `token`, `created_at`) VALUES
-('sangokyes@gmail.com', '$2y$12$Bvo9GxYNtzhvzkk.THAOpO3uxCkJ7kzq350hVNKvv2m1IN6kSvJIq', '2024-04-25 02:08:09');
 
 -- --------------------------------------------------------
 
@@ -204,23 +198,8 @@ CREATE TABLE `posts` (
 --
 
 INSERT INTO `posts` (`id`, `body`, `user_id`, `group_id`, `deleted_by`, `deleted_at`, `created_at`, `updated_at`) VALUES
-(1, 'tét pót', 1, NULL, NULL, '2024-04-21 01:09:44', '2024-04-20 02:51:24', '2024-04-21 01:09:44'),
-(8, 'Another post update', 1, NULL, NULL, '2024-04-21 01:08:51', '2024-04-20 05:44:10', '2024-04-21 01:08:51'),
-(9, '<h3>Lorem ipsum&nbsp;</h3><p>dolor sit amet, consectetur adipiscing elit. Sed eleifend ipsum eget metus ullamcorper, quis sagittis nisi efficitur. Aliquam erat volutpat. Duis sit amet lacus eros. Sed eget mauris nunc. Integer nec arcu vel nisi laoreet lacinia. Proin posuere magna ut ligula posuere, eu sodales ipsum tempus. Donec ut massa vel felis consequat hendrerit sed nec tortor. Vestibulum luctus tellus in fermentum bibendum. Integer venenatis lacinia libero ut malesuada. Aenean hendrerit auctor arcu, ut rhoncus odio finibus et. Aliquam ac arcu nec justo tristique consectetur. Fusce rutrum magna et nunc commodo, nec ultricies est rhoncus. Donec quis mauris feugiat, convallis lorem in, fermentum justo. Cras tincidunt justo at dolor eleifend volutpat. Nullam efficitur sem et mi tempus, quis lobortis purus consequat. Sed eget mauris eros. Sed vel metus non arcu mollis vestibulum. Sed et mi sit amet elit volutpat varius non nec sem.</p>', 1, NULL, NULL, NULL, '2024-04-20 06:53:51', '2024-04-21 02:19:07'),
-(10, '<h2>Today todo list</h2><ul><li>Weak up</li><li>Eat</li><li>Sleep</li></ul><p>Ok then end of a day</p>', 1, NULL, NULL, '2024-04-25 01:22:49', '2024-04-20 20:01:41', '2024-04-25 01:22:49'),
-(11, '<p>Choose&nbsp;</p><p>1 <a href=\"https://facebook.com\">Kiti</a></p><p>2 <i>Kata</i></p><p>3 <strong>Kete</strong></p><p>&nbsp; &nbsp; 4</p><p>&nbsp;5</p><p>&nbsp;6</p><p>&nbsp;7</p><p>&nbsp;8</p><p>&nbsp;9</p><p>&nbsp;10</p><p>&nbsp;11</p><p>&nbsp;12</p><p>&nbsp;13</p><p>&nbsp;14</p><p>&nbsp;15</p>', 1, NULL, NULL, '2024-04-25 01:22:44', '2024-04-21 06:19:05', '2024-04-25 01:22:44'),
-(12, '<p>Create with ckediter</p><p>1tr</p><p>2tr</p><p>3tr</p><p>4tr</p><p>5tr</p><p>6tr</p><p>7tr</p><p>8tr</p><p>9tr</p><p>l</p><p>l</p><p>l</p><p>l</p><p>k</p><p>k</p><p>k</p><p>k</p><p>k</p><p>k</p><p>k</p><p>k</p><p>k</p>', 1, NULL, NULL, '2024-04-25 01:22:37', '2024-04-21 08:03:22', '2024-04-25 01:22:37'),
-(13, '<p>ok 1</p>', 1, NULL, NULL, '2024-04-23 09:00:23', '2024-04-21 08:10:08', '2024-04-23 09:00:23'),
-(14, '<h2>ok</h2><h3>ok</h3>', 1, NULL, NULL, '2024-04-25 01:22:32', '2024-04-21 09:11:38', '2024-04-25 01:22:32'),
-(15, '', 1, NULL, NULL, '2024-04-25 01:22:26', '2024-04-21 19:05:13', '2024-04-25 01:22:26'),
-(16, '', 1, NULL, NULL, '2024-04-25 01:22:19', '2024-04-23 08:48:37', '2024-04-25 01:22:19'),
-(17, '<p>Váy đẹp</p>', 1, NULL, NULL, NULL, '2024-04-23 09:00:08', '2024-04-23 09:00:08'),
-(18, '<p>Please praise me 😘</p>', 1, NULL, NULL, NULL, '2024-04-23 09:05:40', '2024-04-25 01:22:07'),
-(19, '<p>la em oi</p>', 1, NULL, NULL, '2024-04-24 06:15:48', '2024-04-23 09:16:20', '2024-04-24 06:15:48'),
-(20, '<p>ok hj</p>', 1, NULL, NULL, '2024-04-25 01:20:34', '2024-04-24 02:04:57', '2024-04-25 01:20:34'),
-(21, '<h3>Is this ok? 🤗</h3>', 1, NULL, NULL, NULL, '2024-04-24 06:14:54', '2024-04-25 01:20:27'),
-(22, '<p>I need this dress 🤔</p>', 1, NULL, NULL, NULL, '2024-04-24 06:23:35', '2024-04-25 01:18:54'),
-(23, '<h2>Hello everyone!&nbsp;</h2><p>This is my personal GitHub profile: <a href=\"https://github.com/fedgds\">Shoppe</a></p>', 1, NULL, NULL, NULL, '2024-04-25 01:28:02', '2024-04-25 01:28:02');
+(1, '', 1, NULL, NULL, NULL, '2024-04-30 02:30:32', '2024-04-30 02:30:32'),
+(2, '<p>Đang cảm thấy buồn 🥹</p>', 2, NULL, NULL, NULL, '2024-04-30 02:37:36', '2024-04-30 02:37:36');
 
 -- --------------------------------------------------------
 
@@ -244,29 +223,7 @@ CREATE TABLE `post_attachments` (
 --
 
 INSERT INTO `post_attachments` (`id`, `post_id`, `name`, `path`, `mime`, `size`, `created_by`, `created_at`) VALUES
-(1, 16, 'ao-polo-nu-apn6256-dxl-7.webp', 'attachments/16/PQQiHHpomZ4CuxqMXZxxsKmdNk3PoKyWovEo88BY.webp', 'image/webp', 97974, 1, '2024-04-23 08:48:37'),
-(2, 16, 'ao-polo-nu-apn7096-vag-1.webp', 'attachments/16/jHilhZ6PyABfnGPXWWLUEY9KJoQ2cEVUnyPVfNIF.webp', 'image/webp', 229562, 1, '2024-04-23 08:48:37'),
-(3, 17, 'cvn6192-den-5.webp', 'attachments/17/Jxmf07iw2p3Mu45RKbf10PdtdQ87kO6PKJWioXYa.webp', 'image/webp', 153780, 1, '2024-04-23 09:00:08'),
-(4, 17, 'cvn6192-den-8.webp', 'attachments/17/qB3aaWMmlLA8Rh7puQuBUsSQSiPGXqAVIf4KT0WR.webp', 'image/webp', 382392, 1, '2024-04-23 09:00:08'),
-(5, 18, 'ao-polo-nu-apn5300-den-2-yodyvn.webp', 'attachments/18/RwLxnWt7FbjGVtb1nLZxb1Pv08dIAEktpRmZ1RjJ.webp', 'image/webp', 128022, 1, '2024-04-23 09:05:40'),
-(6, 18, 'ao-polo-nu-apn5300-den-3-yodyvn.webp', 'attachments/18/5LNdcmCPqimdjzSqO90Csf6jy6poCrvHXmlUAnFM.webp', 'image/webp', 72600, 1, '2024-04-23 09:05:40'),
-(7, 18, 'ao-polo-nu-apn5300-den-6-yodyvn.webp', 'attachments/18/tyBiPaIc0GiQTJp7ksvUtp9lpkZxSPSv36QJMAvx.webp', 'image/webp', 113882, 1, '2024-04-23 09:05:40'),
-(8, 18, 'ao-polo-nu-apn5300-den-7-yodyvn.webp', 'attachments/18/mL5CyCQdSESYeWTSqebmdMlp7InM3xxbmdYhb8AV.webp', 'image/webp', 122824, 1, '2024-04-23 09:05:40'),
-(9, 18, 'ao-polo-nu-apn6256-dxl-2.webp', 'attachments/18/uxGySG09qJmZvprtS9U45qZ0ctICDvOKhiBAlDVC.webp', 'image/webp', 155360, 1, '2024-04-23 09:05:40'),
-(10, 18, 'ao-polo-nu-apn6256-dxl-4.webp', 'attachments/18/1iola4G9w4SILgFX7ydBC6v2hvOmxYpqvrOz6B76.webp', 'image/webp', 156330, 1, '2024-04-23 09:05:40'),
-(11, 18, 'ao-polo-nu-apn6256-dxl-6.webp', 'attachments/18/yqLqaMNfzRiVMaG93l0aZFPyERI71p0dOYrNT109.webp', 'image/webp', 165490, 1, '2024-04-23 09:05:40'),
-(12, 18, 'ao-polo-nu-apn6256-dxl-7.webp', 'attachments/18/3I6nPirXxAIbcHKy9u455GBwIMTTjkr35ZkK3idY.webp', 'image/webp', 97974, 1, '2024-04-23 09:05:40'),
-(13, 18, 'ao-polo-nu-apn7096-vag-1.webp', 'attachments/18/9aMphBpdVJjHOs1He98ZOLo5t6iS9bmlCKURcHiY.webp', 'image/webp', 229562, 1, '2024-04-23 09:05:40'),
-(14, 18, 'ao-polo-nu-apn7096-vag-2.webp', 'attachments/18/GPDnOdcMn8NmjQETlM8xTvWXxsqzUrWeTFM0uYxU.webp', 'image/webp', 245894, 1, '2024-04-23 09:05:40'),
-(15, 19, 'ao-polo-nu-apn6256-dxl-4.webp', 'attachments/19/fvfFiXMTAtPZ9RHrUyKSXTJGs1vMg7pcRT8mEyOW.webp', 'image/webp', 156330, 1, '2024-04-23 09:16:20'),
-(16, 21, 'ao-polo-nu-apn5300-den-6-yodyvn.webp', 'attachments/21/6IPTxk4ZHyuFJw6GSohXGDwB3CEUlqW9ElGhctBi.webp', 'image/webp', 113882, 1, '2024-04-24 06:14:54'),
-(17, 21, 'ao-polo-nu-apn6256-dxl-7.webp', 'attachments/21/wAjThr3lidzqg7PL0jWIm3PCGvwIugJ7OvTdBnI5.webp', 'image/webp', 97974, 1, '2024-04-24 06:15:58'),
-(18, 21, 'ao-polo-nu-apn7096-vag-1.webp', 'attachments/21/8XWAsKLs6VwoHBV1a0MMaCWBokcOS8tXnN0szd2f.webp', 'image/webp', 229562, 1, '2024-04-24 06:19:13'),
-(19, 21, 'ao-polo-nu-apn7096-vag-2.webp', 'attachments/21/7147RtpHuwme9yM78PmAm2pULX1QWtiDIGZ1OjPP.webp', 'image/webp', 245894, 1, '2024-04-24 06:19:13'),
-(23, 22, 'chan-vay-nu-cvn6152-nau-3.webp', 'attachments/22/P6bnHEXDuUi0ziWmghKI1GGbp0wiNNrzQfqfGeRY.webp', 'image/webp', 266372, 1, '2024-04-24 07:15:07'),
-(27, 21, 'chan-vay-nu-cvn3192-den-1-yodyvn.webp', 'attachments/21/5nVrmYvQIMA1jxPLVXFSx1KjqGwpy2MoFxWpi4u9.webp', 'image/webp', 51858, 1, '2024-04-25 01:19:33'),
-(28, 21, 'chan-vay-nu-cvn3192-den-2-yodyvn.webp', 'attachments/21/Kdnr5lLehKoZktTpoStb1WahyaHm3iKm8jNcoy5p.webp', 'image/webp', 60416, 1, '2024-04-25 01:19:33'),
-(29, 21, 'chan-vay-nu-cvn3192-den-4-yodyvn.webp', 'attachments/21/SJhcCfqjbJ4SOe6biqzzNHY6nEB3iqO0yjG4EmvK.webp', 'image/webp', 62860, 1, '2024-04-25 01:19:33');
+(1, 1, 'sjn4004-dni-11.webp', 'attachments/1/EfUGRGmGED1nVNRLeu5ueMklIf9SSwfh4uklRCLP.webp', 'image/webp', 257698, 1, '2024-04-30 02:30:32');
 
 -- --------------------------------------------------------
 
@@ -277,7 +234,7 @@ INSERT INTO `post_attachments` (`id`, `post_id`, `name`, `path`, `mime`, `size`,
 CREATE TABLE `reactions` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `object_id` bigint(20) UNSIGNED NOT NULL,
-  `object_type` varchar(255) NOT NULL DEFAULT 'App\\Models\\Post',
+  `object_type` varchar(255) NOT NULL DEFAULT 'AppModelsPost',
   `type` varchar(255) NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
@@ -288,10 +245,10 @@ CREATE TABLE `reactions` (
 --
 
 INSERT INTO `reactions` (`id`, `object_id`, `object_type`, `type`, `user_id`, `created_at`) VALUES
-(1, 23, 'App\\Models\\Post', 'like', 1, '2024-04-29 07:56:39'),
-(2, 22, 'App\\Models\\Post', 'like', 1, '2024-04-29 07:56:56'),
-(5, 1, 'App\\Models\\Comment', 'like', 1, '2024-04-29 09:10:24'),
-(6, 2, 'App\\Models\\Comment', 'like', 1, '2024-04-29 09:10:58');
+(1, 1, 'App\\Models\\Post', 'like', 1, '2024-04-30 02:32:50'),
+(2, 1, 'App\\Models\\Comment', 'like', 1, '2024-04-30 02:33:05'),
+(3, 2, 'App\\Models\\Post', 'like', 2, '2024-04-30 02:37:39'),
+(4, 2, 'App\\Models\\Post', 'like', 1, '2024-04-30 02:38:28');
 
 -- --------------------------------------------------------
 
@@ -318,9 +275,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `username`, `cover_path`, `avatar_path`) VALUES
-(1, 'Sang La', 'sangokyes@gmail.com', NULL, '$2y$12$V932EPqzF7KzLZCKhjxBue07iNIobXZTvPatrouRGBHZb.nKYazE2', '7rMkycsfFIfOgRqKFu7zK9yqG6Cny2Gqd7EagSEbizvW1qCyH25aB2EsUJQ9', '2024-04-16 18:52:57', '2024-04-25 02:47:03', 'sang-la', 'user-/1/InivH4NuH6a7I9M43fv7chjYBgZnVlI94M0Z5RoI.jpg', 'user-/1/eNtC1pm6WpKEttgYywXNF5G8MEgT3TSAlgV4v4XP.png'),
-(2, 'Su La', 'suokyes@gmail.com', NULL, '$2y$12$xs6LW.UVhZNdS7svvEHRLeT7IjE7reQMbGJNtOZvIRoxZl0asccbq', NULL, '2024-04-16 18:54:59', '2024-04-25 02:10:41', 'su-la', 'user-/2/TjsD4ZHhWjnShFMP75seJTNtp7VaM4oU05C9ObqB.jpg', 'user-/2/trvt7ptyX10Qaq6ZXWq4MMMAHwujrX0A61mcsoPM.jpg'),
-(3, 'admin', 'admin@gmail.com', NULL, '$2y$12$Q6Fqie8ht8BIIzqCQBTwEO/iXlB.JheNOYUfpnmV9sps4HOMi9OBu', NULL, '2024-04-25 02:17:09', '2024-04-25 02:47:32', 'admin', 'user-/3/mLPqKinWVq0nlGjRZ7UyOp5ooTFp6s6VGXMUzUm2.jpg', NULL);
+(1, 'Sang', 'sangokyes@gmail.com', NULL, '$2y$12$pxK0L77nlVNuFUfVP7G5jeF11HeSxUin5b0iBRgw8fx/xOZ/88rFS', NULL, '2024-04-30 02:28:27', '2024-04-30 02:29:07', 'sang', NULL, 'user-/1/u5jNlA2C1nwiRd4Fav4vo0ggTXC77FKDmv5DjsMe.jpg'),
+(2, 'Su la', 'suokyes@gmail.com', NULL, '$2y$12$GddcQh/OU5uO7sjtreuXO.6ywGh9bZEcvthVy.FpeukYfFpoHuE9W', NULL, '2024-04-30 02:35:40', '2024-04-30 02:36:11', 'su-la', 'user-/2/dAQHTfCDvwm725VCdkOTWOEVhQMBJIIX6myaBgal.jpg', 'user-/2/vdoXn4mFQSDIBdKXnfGqhtwIJCz5SHOdE05qNHRt.jpg');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -408,8 +364,7 @@ ALTER TABLE `post_attachments`
 --
 ALTER TABLE `reactions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `post_reactions_post_id_foreign` (`object_id`),
-  ADD KEY `post_reactions_user_id_foreign` (`user_id`);
+  ADD KEY `reactions_user_id_foreign` (`user_id`);
 
 --
 -- Chỉ mục cho bảng `users`
@@ -426,7 +381,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT cho bảng `failed_jobs`
@@ -456,7 +411,7 @@ ALTER TABLE `group_users`
 -- AUTO_INCREMENT cho bảng `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT cho bảng `personal_access_tokens`
@@ -468,25 +423,25 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT cho bảng `posts`
 --
 ALTER TABLE `posts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `post_attachments`
 --
 ALTER TABLE `post_attachments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT cho bảng `reactions`
 --
 ALTER TABLE `reactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
@@ -540,7 +495,7 @@ ALTER TABLE `post_attachments`
 -- Các ràng buộc cho bảng `reactions`
 --
 ALTER TABLE `reactions`
-  ADD CONSTRAINT `post_reactions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `reactions_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
