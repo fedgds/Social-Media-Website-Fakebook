@@ -57,7 +57,7 @@ function deleteComment(comment) {
 
             const commentIndex = props.data.comments.findIndex(c => c.id === comment.id)
             props.data.comments.splice(commentIndex, 1)
-            console.log(props.data.comments)
+            
             if (props.parentComment) {
                 props.parentComment.num_of_comments -= data.deleted;
             }
