@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GroupResource;
 use App\Http\Resources\PostResource;
+use App\Models\Group;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,9 +31,19 @@ class HomeController extends Controller
         if($request->wantsJson()) {
             return $posts;
         }
+
+        $group = Group::query()
+            ->select(['groups.*','gu.status', 'gu.role'])
+            ->join('group_users AS gu', 'gu.group_id', 'groups.id')
+            ->where('gu.user_id', Auth::id())
+            ->orderBy('gu.role')
+            ->orderBy('name', 'desc')
+            ->latest()
+            ->get();
             
         return Inertia::render('Home', [
-            'posts' => $post
+            'posts' => $post,
+            'groups' => GroupResource::collection($group)
         ]);
     }
 }
