@@ -1,100 +1,93 @@
 <script setup>
-    import { computed, ref } from 'vue'
-    import { XMarkIcon, CheckCircleIcon, CameraIcon } from '@heroicons/vue/24/solid'
-    import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
-    import {usePage} from "@inertiajs/vue3";
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-    import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
-    import Edit from '@/Pages/Profile/Edit.vue';
-    import PrimaryButton from '@/Components/PrimaryButton.vue';
-    import { useForm } from '@inertiajs/vue3';
+import { computed, ref } from 'vue'
+import { XMarkIcon, CheckCircleIcon, CameraIcon } from '@heroicons/vue/24/solid'
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import {usePage} from "@inertiajs/vue3";
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
+import { useForm } from '@inertiajs/vue3';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 
-    const imagesform = useForm({
-        avatar: null,
-        cover: null
+const imagesform = useForm({
+    thumbnail: null,
+    cover: null
+})
+
+const showNotification = ref(true);
+
+const coverImageSrc = ref('');
+
+const thumbnailImageSrc = ref('');
+
+const authUser = usePage().props.auth.user;
+
+const isCurrentUserAdmin = computed(() => props.group.role === 'admin')
+
+const props = defineProps({
+    errors: Object,
+    success: {
+        type: String,
+    },
+    group: {
+        type: Object
+    }
+});
+
+function onCoverChange(event) {
+    imagesform.cover  = event.target.files[0]
+    if (imagesform.cover) {
+        const reader = new FileReader()
+        reader.onload = () => {
+            coverImageSrc.value = reader.result;
+        }
+        reader.readAsDataURL(imagesform.cover)
+    }
+}
+
+function onThumbnailChange(event) {
+    imagesform.thumbnail  = event.target.files[0]
+    if (imagesform.thumbnail) {
+        const reader = new FileReader()
+        reader.onload = () => {
+            thumbnailImageSrc.value = reader.result;
+        }
+        reader.readAsDataURL(imagesform.thumbnail)
+    }
+}
+
+function resetCoverImage() {
+    imagesform.cover = null;
+    coverImageSrc.value = null;
+}
+
+function resetThumbnailImage() {
+    imagesform.thumbnail = null;
+    thumbnailImageSrc.value = null;
+}
+
+function submitCoverImage() {
+    imagesform.post(route('group.updateImages', props.group.slug), {
+        onSuccess: () => {
+            showNotification.value = true
+            resetCoverImage()
+            setTimeout(() => {
+                showNotification.value = false
+            }, 3000)
+        }
     })
+}
 
-    const showNotification = ref(true);
-
-    const coverImageSrc = ref('');
-
-    const avatarImageSrc = ref('');
-
-    const authUser = usePage().props.auth.user;
-
-    const isMyProfile = computed(() => authUser && authUser.id === props.user.id);
-
-    const props = defineProps({
-        errors: Object,
-        mustVerifyEmail: {
-            type: Boolean,
-        },
-        status: {
-            type: String,
-        },
-        success: {
-            type: String,
-        },
-        user: {
-            type: Object
+function submitThumbnailImage() {
+    imagesform.post(route('group.updateImages', props.group.slug), {
+        onSuccess: () => {
+            showNotification.value = true
+            resetThumbnailImage()
+            setTimeout(() => {
+                showNotification.value = false
+            }, 3000)
         }
-    });
-
-    function onCoverChange(event) {
-        imagesform.cover  = event.target.files[0]
-        if (imagesform.cover) {
-            const reader = new FileReader()
-            reader.onload = () => {
-                coverImageSrc.value = reader.result;
-            }
-            reader.readAsDataURL(imagesform.cover)
-        }
-    }
-
-    function onAvatarChange(event) {
-        imagesform.avatar  = event.target.files[0]
-        if (imagesform.avatar) {
-            const reader = new FileReader()
-            reader.onload = () => {
-                avatarImageSrc.value = reader.result;
-            }
-            reader.readAsDataURL(imagesform.avatar)
-        }
-    }
-
-    function resetCoverImage() {
-        imagesform.cover = null;
-        coverImageSrc.value = null;
-    }
-
-    function resetAvatarImage() {
-        imagesform.avatar = null;
-        avatarImageSrc.value = null;
-    }
-
-    function submitCoverImage() {
-        imagesform.post(route('profile.updateImages'), {
-            onSuccess: (user) => {
-                showNotification.value = true
-                resetCoverImage()
-                setTimeout(() => {
-                    showNotification.value = false
-                }, 3000)
-            }
-        })
-    }
-
-    function submitAvatarImage() {
-        imagesform.post(route('profile.updateImages'), {
-            onSuccess: (user) => {
-                showNotification.value = true
-                resetAvatarImage()
-                setTimeout(() => {
-                    showNotification.value = false
-                }, 3000)
-            }
-        })
-    }
+    })
+}
 </script>
 
 <template>
@@ -114,9 +107,9 @@
             </div>
             <div class="group relative bg-white">
                 <!-- Cover Image -->
-                <img :src="coverImageSrc || user.cover_url || '/img/default-cover.png'" class="w-full h-[200px] object-cover">
+                <img :src="coverImageSrc || group.cover_url || '/img/default-cover.png'" class="w-full h-[200px] object-cover">
 
-                <div class="absolute top-2 right-2">
+                <div v-if="isCurrentUserAdmin" class="absolute top-2 right-2">
                     <button v-if="!coverImageSrc" class="bg-gray-50 hover:bg-gray-100 text-gray-800 py-2 px-2 text-xs flex items-center opacity-0 group-hover:opacity-100">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
@@ -137,24 +130,42 @@
                     </div>
                 </div>
                 <div class="flex">
-                    <!-- Avatar Image -->
-                    <div class="flex items-center justify-center relative group/avatar ml-[48px] w-[128px] h-128px -mt-[64px] rounded-full">
-                        <img :src="avatarImageSrc || user.avatar_url || '/img/default-avatar.png'" class="w-full h-full object-cover rounded-full">
-                        <button v-if="!avatarImageSrc" class="absolute left-0 top-0 right-0 bottom-0 bg-black/50 text-white rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover/avatar:opacity-100">
+                    <!-- Thumbnail Image -->
+                    <div class="flex items-center justify-center relative group/thumbnail ml-[48px] w-[128px] h-128px -mt-[64px] rounded-full">
+                        <img :src="thumbnailImageSrc || group.thumbnail_url || '/img/default-group.png'" class="w-full h-full object-cover rounded-full">
+                        <button
+                            v-if="isCurrentUserAdmin && !thumbnailImageSrc"
+                            class="absolute left-0 top-0 right-0 bottom-0 bg-black/50 text-gray-200 rounded-full opacity-0 flex items-center justify-center group-hover/thumbnail:opacity-100">
                             <CameraIcon class="w-8 h-8"/>
-                            <input type="file" class="absolute left-0 top-0 bottom-0 right-0 opacity-0 cursor-pointer" @change="onAvatarChange">
+
+                            <input type="file" class="absolute left-0 top-0 bottom-0 right-0 opacity-0"
+                                    @change="onThumbnailChange"/>
                         </button>
-                        <div v-else class="absolute top-1 right-0 flex flex-col gap-2">
-                            <button @click="resetAvatarImage" class="w-7 h-7 flex items-center justify-center bg-red-500/80 text-white rounded-full">
-                                <XMarkIcon class="w-5 h-5" />
+
+                        <div v-else-if="isCurrentUserAdmin" class="absolute top-1 right-0 flex flex-col gap-2">
+                            <button
+                                @click="resetThumbnailImage"
+                                class="w-7 h-7 flex items-center justify-center bg-red-500/80 text-white rounded-full">
+                                <XMarkIcon class="h-5 w-5"/>
                             </button>
-                            <button @click="submitAvatarImage" class="w-7 h-7 flex items-center justify-center bg-emerald-500/80 text-white rounded-full">
-                                <CheckCircleIcon class="h-5 w-5" />
+                            <button
+                                @click="submitThumbnailImage"
+                                class="w-7 h-7 flex items-center justify-center bg-emerald-500/80 text-white rounded-full">
+                                <CheckCircleIcon class="h-5 w-5"/>
                             </button>
                         </div>
                     </div>
                     <div class="flex justify-between items-center flex-1 p-4">
-                        <h2 class="font-bold text-lg">{{ user.name }}</h2>
+                        <h2 class="font-bold text-lg">{{ group.name }}</h2>
+                        <PrimaryButton v-if="isCurrentUserAdmin">
+                            Mời
+                        </PrimaryButton>
+                        <PrimaryButton v-if="authUser && !group.role && group.auto_approval">
+                            Tham gia
+                        </PrimaryButton>
+                        <PrimaryButton  v-if="authUser && !group.role && !group.auto_approval">
+                            Gửi yêu cầu
+                        </PrimaryButton>
                     </div>
                 </div>
             </div>
@@ -176,10 +187,6 @@
                         <Tab v-slot="{ selected }" as="template">
                             <TabItem text="Ảnh" :selected="selected"/>
                         </Tab>
-
-                        <Tab v-if="isMyProfile" v-slot="{ selected }" as="template">
-                            <TabItem text="Cập nhật tài khoản" :selected="selected"/>
-                        </Tab>
                     </TabList>
             
                     <TabPanels class="mt-2">
@@ -199,7 +206,7 @@
                             Ảnh
                         </TabPanel>
 
-                        <TabPanel v-if="isMyProfile">
+                        <TabPanel v-if="authUser && authUser.id == group.id">
                             <Edit :must-verify-email="mustVerifyEmail" :status="status"/>
                         </TabPanel>
                     </TabPanels>
@@ -207,8 +214,8 @@
             </div>
         </div>
     </AuthenticatedLayout>
-</template>  
-
+</template>
+  
 <style scoped>
 
 </style>

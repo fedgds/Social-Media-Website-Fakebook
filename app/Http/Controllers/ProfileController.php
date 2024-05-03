@@ -101,7 +101,6 @@ class ProfileController extends Controller
             $success = 'Ảnh đại diện đã được cập nhật !';
         }
         
-        // session('success', 'Cover image was  updated!');
 
         return back()->with('success', $success);
     }
