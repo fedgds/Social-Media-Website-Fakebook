@@ -7,6 +7,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
 import { useForm } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import InviteUserModal from "@/Pages/Group/InviteUserModal.vue";
 
 const imagesform = useForm({
     thumbnail: null,
@@ -14,13 +15,10 @@ const imagesform = useForm({
 })
 
 const showNotification = ref(true);
-
 const coverImageSrc = ref('');
-
 const thumbnailImageSrc = ref('');
-
+const showInviteUserModal = ref(false);
 const authUser = usePage().props.auth.user;
-
 const isCurrentUserAdmin = computed(() => props.group.role === 'admin')
 
 const props = defineProps({
@@ -32,6 +30,12 @@ const props = defineProps({
         type: Object
     }
 });
+
+// const aboutForm = useForm({
+//     name: usePage().props.group.name,
+//     auto_approval: !!parseInt(usePage().props.group.auto_approval),
+//     about: usePage().props.group.about
+// })
 
 function onCoverChange(event) {
     imagesform.cover  = event.target.files[0]
@@ -86,6 +90,20 @@ function submitThumbnailImage() {
                 showNotification.value = false
             }, 3000)
         }
+    })
+}
+
+function approveInvitation() {
+    form.get(route('group.approveInvitation'), {
+        preserveScroll: true
+    })
+}
+
+function joinToGroup() {
+    const form = useForm({})
+
+    form.post(route('group.join', props.group.slug), {
+        preserveScroll: true
     })
 }
 </script>
@@ -157,17 +175,28 @@ function submitThumbnailImage() {
                     </div>
                     <div class="flex justify-between items-center flex-1 p-4">
                         <h2 class="font-bold text-lg">{{ group.name }}</h2>
-                        <PrimaryButton v-if="isCurrentUserAdmin">
+                        <PrimaryButton v-if="!authUser" :href="route('login')">
+                            Đăng nhập để tham gia
+                        </PrimaryButton>
+                        <PrimaryButton v-if="isCurrentUserAdmin"
+                                        @click="showInviteUserModal = true">
                             Mời
                         </PrimaryButton>
-                        <PrimaryButton v-if="authUser && !group.role && group.auto_approval">
+                        <PrimaryButton v-if="authUser && group.status === 'pending' && !group.token"
+                                        @click="approveInvitation">
+                            Chấp nhận
+                        </PrimaryButton>
+                        <PrimaryButton v-if="authUser && !group.role && group.auto_approval"
+                                        @click="joinToGroup">
                             Tham gia
                         </PrimaryButton>
-                        <PrimaryButton  v-if="authUser && !group.role && !group.auto_approval">
+                        <PrimaryButton  v-if="authUser && !group.role && !group.auto_approval"
+                                        @click="joinToGroup">
                             Gửi yêu cầu
                         </PrimaryButton>
                     </div>
                 </div>
+                <pre>{{ groupUser }}</pre>
             </div>
             <div class="border-t-2">
                 <TabGroup>
@@ -214,6 +243,7 @@ function submitThumbnailImage() {
             </div>
         </div>
     </AuthenticatedLayout>
+    <InviteUserModal v-model="showInviteUserModal"/>
 </template>
   
 <style scoped>

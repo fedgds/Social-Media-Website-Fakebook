@@ -4,14 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Http\Enums\GroupUserRole;
 use App\Http\Enums\GroupUserStatus;
+use App\Http\Requests\InviteUsersRequest;
+use App\Notifications\RequestToJoinGroup;
 use App\Http\Resources\GroupResource;
 use App\Models\Group;
+use Carbon\Carbon;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
+use App\Http\Resources\GroupUserResource;
 use App\Models\GroupUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class GroupController extends Controller
@@ -59,14 +65,6 @@ class GroupController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Group $group)
-    {
-        //
-    }
-
     public function updateImage(Request $request, Group $group)
     {
         if (!$group->isAdmin(Auth::id())) {
@@ -100,5 +98,70 @@ class GroupController extends Controller
         }
 
         return back()->with('success', $success);
+    }
+
+    public function inviteUsers(InviteUsersRequest $request, Group $group)
+    {
+        $data = $request->validated();
+
+        $user = $request->user;
+
+        $groupUser = $request->groupUser;
+
+        if ($groupUser) {
+            $groupUser->delete();
+        }
+
+        $hours = 24;
+        $token = Str::random(256);
+
+        GroupUser::create([
+            'status' => GroupUserStatus::PENDING->value,
+            'role' => GroupUserRole::USER->value,
+            'token' => $token,
+            'token_expire_date' => Carbon::now()->addHours($hours),
+            'user_id' => $user->id,
+            'group_id' => $group->id,
+            'created_by' => Auth::id(),
+        ]);
+
+
+        return back()->with('success', 'Người dùng đã được mời tham gia nhóm');
+    }
+
+    public function approveInvitation(string $token)
+    {
+        $groupUser = GroupUser::query()
+            ->where('token', $token)
+            ->first();
+
+        $groupUser->status = GroupUserStatus::APPROVED->value;
+        $groupUser->token_used = Carbon::now();
+        $groupUser->save();
+
+        return redirect(route('group.profile', $groupUser->group))
+            ->with('success', 'Bạn đã chấp nhận tham gia nhóm "' . $groupUser->group->name . '"');
+    }
+
+    public function join(Group $group)
+    {
+        $user = \request()->user();
+
+        $status = GroupUserStatus::APPROVED->value;
+        $successMessage = 'Bạn đã tham gia nhóm "' . $group->name . '"';
+        if (!$group->auto_approval) {
+            $status = GroupUserStatus::PENDING->value;
+            $successMessage = 'Đã gửi yêu cầu tham gia';
+        }
+
+        GroupUser::create([
+            'status' => $status,
+            'role' => GroupUserRole::USER->value,
+            'user_id' => $user->id,
+            'group_id' => $group->id,
+            'created_by' => $user->id,
+        ]);
+
+        return back()->with('success', $successMessage);
     }
 }

@@ -32,6 +32,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/group/update-images/{group:slug}', [GroupController::class, 'updateImage'])->name('group.updateImages');
 
+    Route::post('/group/invite/{group:slug}', [GroupController::class, 'inviteUsers'])->name('group.inviteUsers');
+
+    Route::get('/group/approve-invitation/{group:slug}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');
+
+    Route::post('/group/join/{group:slug}', [GroupController::class, 'join'])->name('group.join');
+
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
