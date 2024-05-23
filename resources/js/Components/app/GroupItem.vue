@@ -13,7 +13,7 @@ defineProps({
             <div class="flex-1">
                 <div class="flex justify-between">
                     <h3 class="font-black text-xl">{{ group.name }}</h3>
-                    {{ group.status === 'approved' ? (group.role === 'admin' ? group.role : ''): 'Chờ phê duyệt' }}
+                    {{ group.status === 'approved' ? (group.role === 'admin' ? group.role : '') : (group.status === 'rejected' ? 'Đã từ chối' : 'Chờ phê duyệt') }}
                 </div>
                 <div class="text-xs text-gray-500">{{ group.description }}</div>
             </div>

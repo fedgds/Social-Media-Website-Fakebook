@@ -111,7 +111,7 @@ class PostController extends Controller
         $id = Auth::id();
 
         if($post->user_id != $id) {
-            return response("You don't have permission to delete this post", 403);
+            return response("Bạn không có quyền xóa bài viết này", 403);
         }
 
         $post->delete();

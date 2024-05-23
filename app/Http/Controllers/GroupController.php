@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Resources\GroupUserResource;
+use App\Http\Resources\UserResource;
 use App\Models\GroupUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,14 +28,15 @@ class GroupController extends Controller
     {
         $group->load('currentUserGroup');
 
-        $users = $group->approvedUsers();
-        $requests = $group->pendingUsers();
+        $users = $group->approvedUsers()->orderBy('name')->get();
+
+        $requests = $group->pendingUsers()->orderBy('name')->get();
+
         return Inertia::render('Group/View', [
             'success' => session('success'),
             'group' => new GroupResource($group),
-            'posts' => null,
-            'users' => $users,
-            'requests' => $requests
+            'users' => UserResource::collection($users),
+            'requests' => UserResource::collection($requests)
         ]);
     }
 
@@ -135,6 +137,35 @@ class GroupController extends Controller
         return back()->with('success', 'Người dùng đã được mời tham gia nhóm');
     }
 
+    public function requestJoin(string $slug)
+    {
+        $group = Group::where('slug', $slug)->firstOrFail();
+        $user = auth()->user();
+
+        // Kiểm tra nếu người dùng đã gửi yêu cầu hoặc đã tham gia nhóm
+        $existingRequest = GroupUser::where('user_id', $user->id)
+            ->where('group_id', $group->id)
+            ->first();
+
+        if ($existingRequest) {
+            return redirect()->back()->with('error', 'Bạn đã gửi yêu cầu hoặc đã tham gia nhóm này.');
+        }
+
+        // Tạo yêu cầu tham gia nhóm
+        GroupUser::create([
+            'user_id' => $user->id,
+            'group_id' => $group->id,
+            'role' => GroupUserRole::USER->value,
+            'status' => 'pending',
+            'token' => null,
+            'token_used' => null,
+            'token_expire_date' => null,
+            'created_by' => $user->id,
+        ]);
+
+        return redirect()->back()->with('success', 'Yêu cầu tham gia nhóm đã được gửi.');
+    }
+
     public function approveInvitation(string $token)
     {
         $groupUser = GroupUser::query()
@@ -171,6 +202,7 @@ class GroupController extends Controller
 
         return redirect()->back()->with('success', 'Bạn đã từ chối lời mời tham gia nhóm "' . $groupUser->group->name . '".');
     }
+    
 
     public function join(Group $group)
     {
@@ -192,5 +224,41 @@ class GroupController extends Controller
         ]);
 
         return back()->with('success', $successMessage);
+    }
+
+    public function approveRequest(Request $request, Group $group)
+    {
+        if (!$group->isAdmin(Auth::id())) {
+            return response("Bạn không có quyền thực hiện hành động này", 403);
+        }
+
+        $data = $request->validate([
+            'user_id' => ['required'],
+            'action' => ['required']
+        ]);
+
+        $groupUser = GroupUser::where('user_id', $data['user_id'])
+            ->where('group_id', $group->id)
+            ->where('status', GroupUserStatus::PENDING->value)
+            ->first();
+
+        if ($groupUser) {
+            $approved = false;
+            if ($data['action'] === 'approve') {
+                $approved = true;
+                $groupUser->status = GroupUserStatus::APPROVED->value;
+            } else {
+                $groupUser->status = GroupUserStatus::REJECTED->value;
+            }
+            $groupUser->save();
+
+            $user = $groupUser->user;
+            // $user->notify(new RequestApproved($groupUser->group, $user, $approved));
+
+            // return back();
+            return back()->with('success', 'Đã '.( $approved ? 'chấp nhận' : 'từ chối' ).' "' . $user->name . '" tham gia nhóm ');
+        }
+
+        return back();
     }
 }

@@ -38,6 +38,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/group/join/{group:slug}', [GroupController::class, 'join'])->name('group.join');
 
+    Route::post('/group/approve-request/{group:slug}', [GroupController::class, 'approveRequest'])->name('group.approveRequest');
+
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -68,6 +70,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/group/approve-invitation/{token}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');
 
     Route::post('/group/reject-invitation/{token}', [GroupController::class, 'rejectInvitation'])->name('group.rejectInvitation');
+
+    Route::post('/group/request-join/{slug}', [GroupController::class, 'requestJoin'])->name('group.requestJoin');
 
 
 });

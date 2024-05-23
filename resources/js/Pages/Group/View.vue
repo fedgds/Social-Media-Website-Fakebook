@@ -5,6 +5,8 @@ import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import {usePage} from "@inertiajs/vue3";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
+import TextInput from "@/Components/TextInput.vue";
+import UserListItem from "@/Components/app/UserListItem.vue";
 import { useForm } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InviteUserModal from "@/Pages/Group/InviteUserModal.vue";
@@ -18,6 +20,8 @@ const showNotification = ref(true);
 const coverImageSrc = ref('');
 const thumbnailImageSrc = ref('');
 const showInviteUserModal = ref(false);
+const searchKeyword = ref('');
+
 const authUser = usePage().props.auth.user;
 
 const isCurrentUserAdmin = computed(() => props.group.role === 'admin')
@@ -30,7 +34,9 @@ const props = defineProps({
     },
     group: {
         type: Object
-    }
+    },
+    users: Array,
+    requests: Array
 });
 
 // const aboutForm = useForm({
@@ -94,6 +100,14 @@ function submitThumbnailImage() {
         }
     })
 }
+// Gửi yêu cầu tham gia nhóm
+function requestJoinGroup() {
+    const form = useForm({});
+    form.post(route('group.requestJoin', props.group.slug), {
+        preserveScroll: true
+    });
+}
+
 
 // Chấp nhận tham gia
 function approveInvitation(token) {
@@ -116,6 +130,26 @@ function joinToGroup() {
     const form = useForm({})
 
     form.post(route('group.join', props.group.slug), {
+        preserveScroll: true
+    })
+}
+// Chấp nhận tham gia
+function approveUser(user) {
+    const form = useForm({
+        user_id: user.id,
+        action: 'approve'
+    })
+    form.post(route('group.approveRequest', props.group.slug), {
+        preserveScroll: true
+    })
+}
+// Từ chối
+function rejectUser(user) {
+    const form = useForm({
+        user_id: user.id,
+        action: 'reject'
+    })
+    form.post(route('group.approveRequest', props.group.slug), {
         preserveScroll: true
     })
 }
@@ -209,10 +243,15 @@ function joinToGroup() {
                                         @click="joinToGroup">
                             Tham gia
                         </PrimaryButton>
-                        <PrimaryButton  v-if="authUser && !group.role && !group.auto_approval"
-                                        @click="requestToGroup">
-                            Gửi yêu cầu
-                        </PrimaryButton>
+                        <div v-if="authUser && !isJoinedToGroup && group.status !== 'pending' && group.status !== 'rejected' " class="mt-4">
+                            <PrimaryButton @click="requestJoinGroup">
+                                Gửi yêu cầu tham gia nhóm
+                            </PrimaryButton>
+                        </div>
+
+                        <div v-if="authUser && !isJoinedToGroup && group.status == 'rejected'">
+                            <p class="text-red-500">Yêu cầu tham gia bị từ chối</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -241,12 +280,30 @@ function joinToGroup() {
                             Bài viết
                         </TabPanel>
 
-                        <TabPanel v-if="isJoinedToGroup" class="bg-white p-3 shadow">
-                            
+                        <TabPanel v-if="isJoinedToGroup">
+                            <div class="mb-3">
+                                <TextInput :model-value="searchKeyword" placeholder="Tìm kiếm..." class="w-full"/>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <UserListItem v-for="user of users"
+                                :user="user"
+                                :key="user.id"/>               
+                            </div>
                         </TabPanel>
 
-                        <TabPanel v-if="isCurrentUserAdmin" class="bg-white p-3 shadow">
-                            Yêu cầu
+                        <TabPanel v-if="isCurrentUserAdmin">
+                            <div v-if="requests.length" class="grid grid-cols-2 gap-2">
+                                <UserListItem v-for="user of requests"
+                                              :user="user"
+                                              :key="user.id"
+                                              :for-approve="true"
+                                              class="shadow rounded-lg"
+                                              @approve="approveUser"
+                                              @reject="rejectUser"/>
+                            </div>
+                            <div v-else class="py-8 text-center dark:text-gray-100">
+                                Không có yêu cầu tham gia nào
+                            </div>
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
