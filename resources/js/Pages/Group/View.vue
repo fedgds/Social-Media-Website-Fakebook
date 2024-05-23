@@ -19,7 +19,9 @@ const coverImageSrc = ref('');
 const thumbnailImageSrc = ref('');
 const showInviteUserModal = ref(false);
 const authUser = usePage().props.auth.user;
+
 const isCurrentUserAdmin = computed(() => props.group.role === 'admin')
+const isJoinedToGroup = computed(() => props.group.role && props.group.status === 'approved')
 
 const props = defineProps({
     errors: Object,
@@ -93,12 +95,23 @@ function submitThumbnailImage() {
     })
 }
 
-function approveInvitation() {
-    form.get(route('group.approveInvitation'), {
+// Chấp nhận tham gia
+function approveInvitation(token) {
+    const form = useForm({})
+    form.get(route('group.approveInvitation', token), {
         preserveScroll: true
     })
 }
 
+// Từ chối tham gia
+function rejectInvitation(token) {
+    const form = useForm({});
+    form.post(route('group.rejectInvitation', token), {
+        preserveScroll: true
+    });
+}
+
+// Gia nhập 
 function joinToGroup() {
     const form = useForm({})
 
@@ -182,21 +195,26 @@ function joinToGroup() {
                                         @click="showInviteUserModal = true">
                             Mời
                         </PrimaryButton>
-                        <PrimaryButton v-if="authUser && group.status === 'pending' && !group.token"
-                                        @click="approveInvitation">
-                            Chấp nhận
-                        </PrimaryButton>
+
+                        <div v-if="authUser && group.status === 'pending' && group.token" class="flex gap-2">
+                            <PrimaryButton @click="approveInvitation(group.token)">
+                                Chấp nhận
+                            </PrimaryButton>
+                            <PrimaryButton @click="rejectInvitation(group.token)">
+                                Từ chối
+                            </PrimaryButton>
+                        </div>
+
                         <PrimaryButton v-if="authUser && !group.role && group.auto_approval"
                                         @click="joinToGroup">
                             Tham gia
                         </PrimaryButton>
                         <PrimaryButton  v-if="authUser && !group.role && !group.auto_approval"
-                                        @click="joinToGroup">
+                                        @click="requestToGroup">
                             Gửi yêu cầu
                         </PrimaryButton>
                     </div>
                 </div>
-                <pre>{{ groupUser }}</pre>
             </div>
             <div class="border-t-2">
                 <TabGroup>
@@ -205,12 +223,12 @@ function joinToGroup() {
                             <TabItem text="Bài viết" :selected="selected"/>
                         </Tab>
 
-                        <Tab v-slot="{ selected }" as="template">
-                            <TabItem text="Bạn bè" :selected="selected"/>
+                        <Tab v-if="isJoinedToGroup" v-slot="{ selected }" as="template">
+                            <TabItem text="Thành viên" :selected="selected"/>
                         </Tab>
 
-                        <Tab v-slot="{ selected }" as="template">
-                            <TabItem text="Đang theo dõi" :selected="selected"/>
+                        <Tab v-if="isCurrentUserAdmin" v-slot="{ selected }" as="template">
+                            <TabItem text="Yêu cầu" :selected="selected"/>
                         </Tab>
 
                         <Tab v-slot="{ selected }" as="template">
@@ -223,12 +241,12 @@ function joinToGroup() {
                             Bài viết
                         </TabPanel>
 
-                        <TabPanel class="bg-white p-3 shadow">
-                            Bạn bè
+                        <TabPanel v-if="isJoinedToGroup" class="bg-white p-3 shadow">
+                            
                         </TabPanel>
 
-                        <TabPanel class="bg-white p-3 shadow">
-                            Đang theo dõi
+                        <TabPanel v-if="isCurrentUserAdmin" class="bg-white p-3 shadow">
+                            Yêu cầu
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">

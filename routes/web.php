@@ -65,6 +65,11 @@ Route::middleware('auth')->group(function () {
     // Groups
     Route::post('/group', [GroupController::class, 'store'])->name('group.create');
 
+    Route::get('/group/approve-invitation/{token}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');
+
+    Route::post('/group/reject-invitation/{token}', [GroupController::class, 'rejectInvitation'])->name('group.rejectInvitation');
+
+
 });
 
 require __DIR__.'/auth.php';

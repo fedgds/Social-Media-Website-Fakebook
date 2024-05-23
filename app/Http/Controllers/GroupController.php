@@ -26,9 +26,15 @@ class GroupController extends Controller
     public function profile(Group $group)
     {
         $group->load('currentUserGroup');
+
+        $users = $group->approvedUsers();
+        $requests = $group->pendingUsers();
         return Inertia::render('Group/View', [
             'success' => session('success'),
-            'group' => new GroupResource($group)
+            'group' => new GroupResource($group),
+            'posts' => null,
+            'users' => $users,
+            'requests' => $requests
         ]);
     }
 
@@ -112,7 +118,7 @@ class GroupController extends Controller
             $groupUser->delete();
         }
 
-        $hours = 24;
+        $hours = 240;
         $token = Str::random(256);
 
         GroupUser::create([
@@ -133,14 +139,37 @@ class GroupController extends Controller
     {
         $groupUser = GroupUser::query()
             ->where('token', $token)
+            ->where('token_used', null)
+            ->where('token_expire_date', '>', Carbon::now())
             ->first();
-
+    
+        if (!$groupUser) {
+            return redirect()->back()->with('success', 'Token không hợp lệ hoặc đã hết hạn.');
+        }
+    
         $groupUser->status = GroupUserStatus::APPROVED->value;
         $groupUser->token_used = Carbon::now();
         $groupUser->save();
-
-        return redirect(route('group.profile', $groupUser->group))
+    
+        return redirect(route('group.profile', $groupUser->group->slug))
             ->with('success', 'Bạn đã chấp nhận tham gia nhóm "' . $groupUser->group->name . '"');
+    }
+    
+    public function rejectInvitation(string $token)
+    {
+        $groupUser = GroupUser::query()
+            ->where('token', $token)
+            ->where('token_used', null)
+            ->where('token_expire_date', '>', Carbon::now())
+            ->first();
+
+        if (!$groupUser) {
+            return redirect()->back()->with('success', 'Token không hợp lệ hoặc đã hết hạn.');
+        }
+
+        $groupUser->delete();
+
+        return redirect()->back()->with('success', 'Bạn đã từ chối lời mời tham gia nhóm "' . $groupUser->group->name . '".');
     }
 
     public function join(Group $group)

@@ -22,6 +22,7 @@ class GroupResource extends JsonResource
             'slug' => $this->slug,
             'status' => $this->currentUserGroup?->status,
             'role' => $this->currentUserGroup?->role,
+            'token' => $this->currentUserGroup?->token,
             // 'pinned_post_id' => $this->pinned_post_id,
             'thumbnail_url' => $this->thumbnail_path ? Storage::url($this->thumbnail_path) : '/img/default-group.png',
             'cover_url' => $this->cover_path ? Storage::url($this->cover_path) : '/img/default-cover.png',
