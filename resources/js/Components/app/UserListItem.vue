@@ -26,7 +26,7 @@ defineEmits(['approve', 'reject', 'roleChange', 'delete']);
             <Link :href="route('profile', user.username)">
                 <img :src="user.avatar_url" class="w-[40px] rounded-full">
             </Link>
-            <div class="flex justify-between flex-1">
+            <div class="flex justify-between flex-1 ">
                 <Link :href="route('profile', user.username)">
                     <h3 class="font-black hover:underline">{{ user.name }}</h3>
                 </Link>
@@ -38,7 +38,7 @@ defineEmits(['approve', 'reject', 'roleChange', 'delete']);
                         Từ chối
                     </button>
                 </div>
-                <div v-if="showRoleDropdown">
+                <div v-if="showRoleDropdown && user.status == 'approved'">
                     <select @change="$emit('roleChange', user, $event.target.value)"
                             class="rounded-md border-0 py-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 max-w-xs text-sm leading-6"
                             :disabled="disableRoleDropdown">
@@ -49,6 +49,9 @@ defineEmits(['approve', 'reject', 'roleChange', 'delete']);
                             class="text-xs py-1.5 px-2 rounded bg-gray-700 hover:bg-gray-800 text-white ml-3 disabled:bg-gray-500"
                             :disabled="disableRoleDropdown">Xóa
                     </button>
+                </div>
+                <div v-else>
+                    Chờ duyệt
                 </div>
             </div>
         </div>

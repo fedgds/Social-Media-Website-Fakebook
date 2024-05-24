@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/group/invite/{group:slug}', [GroupController::class, 'inviteUsers'])->name('group.inviteUsers');
 
-    Route::get('/group/approve-invitation/{group:slug}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');
+    Route::post('/group/approve-invitation/{group:slug}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');
 
     Route::post('/group/join/{group:slug}', [GroupController::class, 'join'])->name('group.join');
 
@@ -71,11 +71,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/group/change-role/{group:slug}', [GroupController::class, 'changeRole'])->name('group.changeRole');
 
-    Route::get('/group/approve-invitation/{token}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');
+    Route::post('/group/approve-invitation/{token}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');
 
     Route::post('/group/reject-invitation/{token}', [GroupController::class, 'rejectInvitation'])->name('group.rejectInvitation');
 
     Route::post('/group/request-join/{slug}', [GroupController::class, 'requestJoin'])->name('group.requestJoin');
+
+    Route::delete('/group/remove-user/{group:slug}', [GroupController::class, 'removeUser'])->name('group.removeUser');
 
 
 });

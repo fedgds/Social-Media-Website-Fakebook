@@ -118,7 +118,7 @@ function requestJoinGroup() {
 // Chấp nhận tham gia
 function approveInvitation(token) {
     const form = useForm({})
-    form.get(route('group.approveInvitation', token), {
+    form.post(route('group.approveInvitation', token), {
         preserveScroll: true
     })
 }
@@ -171,11 +171,25 @@ function onRoleChange(user, role) {
     })
 }
 
+function deleteUser(user) {
+    if (!window.confirm(`Bạn có chắc muốn đuổi "${user.name}" ra khỏi nhóm?`)) {
+        return false;
+    }
+
+    const form = useForm({
+        user_id: user.id,
+    })
+    form.delete(route('group.removeUser', props.group.slug), {
+        preserveScroll: true
+    })
+}
+
 function updateGroup() {
     aboutForm.put(route('group.update', props.group.slug), {
         preserveScroll: true
     })
 }
+
 </script>
 
 <template>
@@ -328,6 +342,7 @@ function updateGroup() {
                                               :disable-role-dropdown="group.user_id === user.id"
                                               class="shadow rounded-lg"
                                               @role-change="onRoleChange"
+                                              @delete="deleteUser"
                                               />              
                             </div>
                         </TabPanel>
@@ -340,7 +355,8 @@ function updateGroup() {
                                               :for-approve="true"
                                               class="shadow rounded-lg"
                                               @approve="approveUser"
-                                              @reject="rejectUser"/>
+                                              @reject="rejectUser"
+                                              />
                             </div>
                             <div v-else class="py-8 text-center dark:text-gray-100">
                                 Không có yêu cầu tham gia nào
