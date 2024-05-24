@@ -52,7 +52,8 @@ function sendReaction() {
     <div class="bg-white border rounded p-4 mb-3">
         <div class="flex items-center justify-between mb-3">
             <PostUserHeader :post="post" />
-            <EditDeleteDropdown @edit="openEditModal"
+            <EditDeleteDropdown :post="post"
+                                @edit="openEditModal"
                                 @delete="deletePost" />
         </div>
         <div class="mb-3">

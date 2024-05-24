@@ -17,6 +17,20 @@ const props = defineProps({
     }
 })
 const authUser = usePage().props.auth.user || {};
+const group = usePage().props.group
+const user = computed(() => props.comment?.user || props.post?.user)
+
+const editAllowed = computed(() => {
+    return user.value.id === authUser.id
+})
+
+const deleteAllowed = computed(() => {
+    if (user.value.id === authUser.id) return true;
+
+    if (props.post.user.id === authUser.id) return true;
+
+    return !props.comment && props.post.group?.role === 'admin';
+})
 
 defineEmits(['edit', 'delete']);
 
@@ -49,7 +63,7 @@ defineEmits(['edit', 'delete']);
                 class="z-40 absolute right-0 mt-2 w-32 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
             >
             <div class="px-1 py-1">
-                <MenuItem v-slot="{ active }">
+                <MenuItem v-if="editAllowed" v-slot="{ active }">
                 <button
                 @click="$emit('edit')"
                     :class="[
@@ -65,20 +79,20 @@ defineEmits(['edit', 'delete']);
                 </button>
                 </MenuItem>
 
-                <MenuItem v-slot="{ active }">
-                <button
-                    @click="$emit('delete')"
-                    :class="[
-                    active ? 'bg-indigo-500 text-white' : 'text-gray-900',
-                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                    ]"
-                >
-                    <TrashIcon
-                        class="mr-2 h-5 w-5"
-                        aria-hidden="true"
-                    />
-                    Xóa
-                </button>
+                <MenuItem v-if="deleteAllowed" v-slot="{ active }">
+                    <button
+                        @click="$emit('delete')"
+                        :class="[
+                        active ? 'bg-indigo-500 text-white' : 'text-gray-900',
+                        'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                        ]"
+                    >
+                        <TrashIcon
+                            class="mr-2 h-5 w-5"
+                            aria-hidden="true"
+                        />
+                        Xóa
+                    </button>
                 </MenuItem>
             </div>
             </MenuItems>

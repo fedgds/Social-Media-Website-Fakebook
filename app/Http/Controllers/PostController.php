@@ -110,13 +110,13 @@ class PostController extends Controller
     {
         $id = Auth::id();
 
-        if($post->user_id != $id) {
-            return response("Bạn không có quyền xóa bài viết này", 403);
+        if ($post->isOwner($id) || $post->group && $post->group->isAdmin($id)) {
+            
+            $post->delete();
+
+            return back();
         }
-
-        $post->delete();
-
-        return back();
+        return response("Bạn không có quyền xóa bài viết này", 403);
     }
 
     public function downloadAttachment(PostAttachment $attachment) 
