@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class StoreGroupRequest extends FormRequest
 {
@@ -11,7 +12,9 @@ class StoreGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $group = $this->route('group');
+
+        return $group->isAdmin(Auth::id());
     }
 
     /**
@@ -25,6 +28,13 @@ class StoreGroupRequest extends FormRequest
             'name' => ['required', 'max:255'],
             'auto_approval' => ['required', 'boolean'],
             'about' => ['nullable']
+        ];
+    }
+    public function messages()
+    {
+        return [
+            'name.required' => 'Vui lòng nhập tên nhóm',
+            'name.max' => 'Tên nhóm không được > 255 ký tự'
         ];
     }
 }

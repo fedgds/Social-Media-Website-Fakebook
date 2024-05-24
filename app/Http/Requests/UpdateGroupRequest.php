@@ -11,7 +11,7 @@ class UpdateGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,17 @@ class UpdateGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'max:255'],
+            'auto_approval' => ['required', 'boolean'],
+            'about' => ['nullable']
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'Vui lòng nhập tên nhóm',
+            'name.max' => 'Tên nhóm không được > 255 ký tự'
         ];
     }
 }

@@ -18,7 +18,7 @@ const editorConfig = {
 
 <template>
     <div class="mb-3 dark:text-gray-100">
-        <label>Group Name</label>
+        <label>Tên nhóm</label>
         <TextInput
             type="text"
             class="mt-1 block w-full"
@@ -31,13 +31,13 @@ const editorConfig = {
     <div class="mb-3 dark:text-gray-100">
         <label>
             <Checkbox name="remember" v-model:checked="form.auto_approval"/>
-            Enable Auto Approval
+            Bật phê duyệt tự động
         </label>
     </div>
 
     <div class="mb-3 dark:text-gray-100">
-        <label>About Group</label>
-        <ckeditor :editor="editor" v-model="form.about" :config="editorConfig"></ckeditor>
+        <label>Mô tả nhóm</label>
+        <InputTextarea v-model="form.about" class="w-full"/>
     </div>
 </template>
 

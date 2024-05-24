@@ -1,9 +1,9 @@
 <script setup>
-import PostItem from '@/Components/app/PostItem.vue';
-import PostModal from '@/Components/app/PostModal.vue'
-import {onMounted, ref, watch} from "vue";
+import PostItem from "@/Components/app/PostItem.vue";
+import PostModal from "@/Components/app/PostModal.vue";
+import {onMounted, onUpdated, ref, watch} from "vue";
 import {usePage} from "@inertiajs/vue3";
-import AttachmentPreviewModal from '@/Components/app/AttachmentPreviewModal.vue';
+import AttachmentPreviewModal from "@/Components/app/AttachmentPreviewModal.vue";
 import axiosClient from "@/axiosClient.js";
 
 const page = usePage();
@@ -11,8 +11,8 @@ const page = usePage();
 const authUser = usePage().props.auth.user;
 const showEditModal = ref(false)
 const showAttachmentsModal = ref(false)
-const editPost = ref({ })
-const previewAttachmentsPost = ref({ })
+const editPost = ref({})
+const previewAttachmentsPost = ref({})
 const loadMoreIntersect = ref(null)
 
 const allPosts = ref({
@@ -35,7 +35,7 @@ watch(() => page.props.posts, () => {
 
 function openEditModal(post) {
     editPost.value = post;
-    showEditModal.value=true;
+    showEditModal.value = true;
 }
 
 function openAttachmentPreviewModal(post, index) {
@@ -43,7 +43,7 @@ function openAttachmentPreviewModal(post, index) {
         post,
         index
     }
-    showAttachmentsModal.value = true
+    showAttachmentsModal.value = true;
 }
 
 function onModalHide() {
@@ -78,18 +78,18 @@ onMounted(() => {
 
 <template>
     <div class="overflow-auto">
-        <PostItem v-for="post of allPosts.data" :key="post.id" :post="post" 
-                @editClick="openEditModal"
-                @attachmentClick="openAttachmentPreviewModal"
+        <PostItem v-for="post of allPosts.data" :key="post.id" :post="post"
+                  @editClick="openEditModal"
+                  @attachmentClick="openAttachmentPreviewModal"
         />
 
         <div ref="loadMoreIntersect"></div>
 
         <PostModal :post="editPost" v-model="showEditModal" @hide="onModalHide"/>
-
         <AttachmentPreviewModal :attachments="previewAttachmentsPost.post?.attachments || []"
-                                v-model:index="previewAttachmentsPost.index"         
-                                v-model="showAttachmentsModal" />
+                                v-model:index="previewAttachmentsPost.index"
+                                v-model="showAttachmentsModal"/>
+
     </div>
 </template>
 

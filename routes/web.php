@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function () {
     // Groups
     Route::post('/group', [GroupController::class, 'store'])->name('group.create');
 
+    Route::put('/group/{group:slug}', [GroupController::class, 'update'])->name('group.update');
+
     Route::post('/group/invite/{group:slug}', [GroupController::class, 'inviteUsers'])->name('group.inviteUsers');
 
     Route::get('/group/approve-invitation/{group:slug}', [GroupController::class, 'approveInvitation'])->name('group.approveInvitation');

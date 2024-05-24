@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('object_id');
             $table->string('object_type')->default('App\Models\Post');
             $table->string('type');
-            $table->foreignId('user_id')->constrained('users'); 
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete(); 
             $table->timestamp('created_at')->nullable();
         });
     }

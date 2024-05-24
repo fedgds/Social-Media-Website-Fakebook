@@ -7,12 +7,9 @@ import {
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue'
-import PostUserHeader from '@/Components/app/PostUserHeader.vue';
 import { XMarkIcon, BookmarkIcon } from '@heroicons/vue/24/solid'
 import { useForm } from "@inertiajs/vue3";
-import InputTextarea from '../InputTextarea.vue';
-import Checkbox from "@/Components/Checkbox.vue";
-import TextInput from "@/Components/TextInput.vue";
+import GroupForm from "@/Components/app/GroupForm.vue";
 import axiosClient from "@/axiosClient.js";
 
 const props = defineProps({
@@ -97,28 +94,8 @@ function submit() {
                 </button>
               </DialogTitle>
               <div class="p-4">
-                <div class="mb-3 dark:text-gray-100">
-                    <label>Tên nhóm</label>
-                    <TextInput
-                        type="text"
-                        class="mt-1 block w-full"
-                        v-model="form.name"
-                        required
-                        autofocus
-                    />
-                </div>
-
-                <div class="mb-3 dark:text-gray-100">
-                    <label>
-                        <Checkbox name="remember" v-model:checked="form.auto_approval"/>
-                        Bật phê duyệt tự động
-                    </label>
-                </div>
-
-                <div class="mb-3 dark:text-gray-100">
-                    <label>Mô tả nhóm</label>
-                    <InputTextarea v-model="form.about" class="w-full"/>
-                </div>
+                
+                <GroupForm :form="form"/>
 
               </div>
 

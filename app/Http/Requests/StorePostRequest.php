@@ -35,7 +35,8 @@ class StorePostRequest extends FormRequest
                 'file',
                 File::types(self::$extensions)->max(50 * 1024 * 1024) //50MB
             ],
-            'user_id' => ['numeric']
+            'user_id' => ['numeric'],
+            'group_id' => ['nullable']
         ];
     }
 

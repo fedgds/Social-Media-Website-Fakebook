@@ -24,6 +24,10 @@
         type: Object,
         required: true
     },
+    group: {
+        type: Object,
+        default: null
+    },
     modelValue: Boolean
   })
 
@@ -35,6 +39,7 @@
 
   const form = useForm({
     body: '',
+    group_id: null,
     attachments: [],
     deleted_file_ids: [],
     _method: 'POST'
@@ -87,6 +92,10 @@
 
   //  Gửi dữ liệu tới route
   function submit() {
+    if (props.group) {
+        form.group_id = props.group.id
+    }
+    
     form.attachments = attachmentFiles.value.map(myFile => myFile.file)
     if (props.post.id) {
         form._method = 'PUT'

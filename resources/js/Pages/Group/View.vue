@@ -8,6 +8,9 @@ import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
 import TextInput from "@/Components/TextInput.vue";
 import UserListItem from "@/Components/app/UserListItem.vue";
 import { useForm } from '@inertiajs/vue3';
+import GroupForm from "@/Components/app/GroupForm.vue";
+import PostList from "@/Components/app/PostList.vue";
+import CreatePost from "@/Components/app/CreatePost.vue";
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InviteUserModal from "@/Pages/Group/InviteUserModal.vue";
 
@@ -35,15 +38,16 @@ const props = defineProps({
     group: {
         type: Object
     },
+    posts: Object,
     users: Array,
     requests: Array
 });
 
-// const aboutForm = useForm({
-//     name: usePage().props.group.name,
-//     auto_approval: !!parseInt(usePage().props.group.auto_approval),
-//     about: usePage().props.group.about
-// })
+const aboutForm = useForm({
+    name: usePage().props.group.name,
+    auto_approval: !!parseInt(usePage().props.group.auto_approval),
+    about: usePage().props.group.about
+})
 
 function onCoverChange(event) {
     imagesform.cover  = event.target.files[0]
@@ -166,6 +170,12 @@ function onRoleChange(user, role) {
         preserveScroll: true
     })
 }
+
+function updateGroup() {
+    aboutForm.put(route('group.update', props.group.slug), {
+        preserveScroll: true
+    })
+}
 </script>
 
 <template>
@@ -256,7 +266,7 @@ function onRoleChange(user, role) {
                                         @click="joinToGroup">
                             Tham gia
                         </PrimaryButton>
-                        <div v-if="authUser && !isJoinedToGroup && group.status !== 'pending' && group.status !== 'rejected' " class="mt-4">
+                        <div v-if="authUser && !group.role && !group.auto_approval && !isJoinedToGroup && group.status !== 'pending' && group.status !== 'rejected' " class="mt-4">
                             <PrimaryButton @click="requestJoinGroup">
                                 Gửi yêu cầu tham gia nhóm
                             </PrimaryButton>
@@ -286,11 +296,24 @@ function onRoleChange(user, role) {
                         <Tab v-slot="{ selected }" as="template">
                             <TabItem text="Ảnh" :selected="selected"/>
                         </Tab>
+
+                        <Tab v-if="isCurrentUserAdmin" v-slot="{ selected }" as="template">
+                            <TabItem text="Chỉnh sửa" :selected="selected"/>
+                        </Tab>
                     </TabList>
             
                     <TabPanels class="mt-2">
-                        <TabPanel class="bg-white p-3 shadow">
-                            Bài viết
+                        <TabPanel>
+                            <template v-if="posts">
+                                <CreatePost :group="group"/>
+                                <PostList v-if="posts.data.length" :posts="posts.data" class="flex-1"/>
+                                <div v-else class="py-8 text-center dark:text-gray-100">
+                                    Chưa có bài viết nào trong nhóm. Hãy trở thành người đầu tiên đăng bài
+                                </div>
+                            </template>
+                            <div v-else class="py-8 text-center dark:text-gray-100">
+                                Chỉ thành viên trong nhóm mới có thể xem
+                            </div>
                         </TabPanel>
 
                         <TabPanel v-if="isJoinedToGroup">
@@ -326,6 +349,13 @@ function onRoleChange(user, role) {
 
                         <TabPanel class="bg-white p-3 shadow">
                             Ảnh
+                        </TabPanel>
+
+                        <TabPanel class="bg-white p-3 shadow">
+                            <GroupForm :form="aboutForm"/>
+                            <PrimaryButton @click="updateGroup">
+                                    Cập nhật
+                                </PrimaryButton>
                         </TabPanel>
 
                         <TabPanel v-if="authUser && authUser.id == group.id">
