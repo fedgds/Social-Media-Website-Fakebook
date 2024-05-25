@@ -7,6 +7,7 @@
     import TabItem from '@/Pages/Profile/Partials/TabItem.vue';
     import Edit from '@/Pages/Profile/Edit.vue';
     import PrimaryButton from '@/Components/PrimaryButton.vue';
+    import DangerButton from "@/Components/DangerButton.vue";
     import { useForm } from '@inertiajs/vue3';
 
     const imagesform = useForm({
@@ -35,6 +36,8 @@
         success: {
             type: String,
         },
+        isCurrentUserFollower: Boolean,
+        followerCount: Number,
         user: {
             type: Object
         }
@@ -97,6 +100,16 @@
             }
         })
     }
+
+    function followUser() {
+        const form = useForm({
+            follow: !props.isCurrentUserFollower
+        })
+
+        form.post(route('user.follow', props.user.id), {
+            preserveScroll: true
+    })
+}
 </script>
 
 <template>
@@ -156,7 +169,19 @@
                         </div>
                     </div>
                     <div class="flex justify-between items-center flex-1 p-4">
-                        <h2 class="font-bold text-lg">{{ user.name }}</h2>
+                        <div>
+                            <h2 class="font-bold text-lg">{{ user.name }}</h2>
+                            <p class="text-xs text-gray-500">{{ followerCount }} người theo dõi</p>
+                        </div>
+
+                        <div v-if="!isMyProfile">
+                            <PrimaryButton v-if="!isCurrentUserFollower" @click="followUser">
+                                Theo dõi
+                            </PrimaryButton>
+                            <DangerButton v-else @click="followUser">
+                                Hủy theo dõi
+                            </DangerButton>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -168,7 +193,7 @@
                         </Tab>
 
                         <Tab v-slot="{ selected }" as="template">
-                            <TabItem text="Bạn bè" :selected="selected"/>
+                            <TabItem text="Người theo dõi" :selected="selected"/>
                         </Tab>
 
                         <Tab v-slot="{ selected }" as="template">
@@ -190,7 +215,7 @@
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
-                            Bạn bè
+                            Người theo dõi
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">

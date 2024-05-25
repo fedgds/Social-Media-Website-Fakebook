@@ -4,6 +4,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,15 +27,14 @@ Route::get('/u/{user:username}', [ProfileController::class, 'index'])->name('pro
 Route::get('/g/{group:slug}', [GroupController::class, 'profile'])->name('group.profile');
 
 
-
 Route::middleware('auth')->group(function () {
     Route::post('/profile/update-images', [ProfileController::class, 'updateImage'])->name('profile.updateImages');
-
-    Route::post('/group/update-images/{group:slug}', [GroupController::class, 'updateImage'])->name('group.updateImages');
 
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/user/follow/{user}', [UserController::class, 'follow'])->name('user.follow');
 
     // Posts
     Route::post('/post', [PostController::class, 'store'])->name('post.create');
@@ -58,6 +58,8 @@ Route::middleware('auth')->group(function () {
 
     // Groups
     Route::post('/group', [GroupController::class, 'store'])->name('group.create');
+
+    Route::post('/group/update-images/{group:slug}', [GroupController::class, 'updateImage'])->name('group.updateImages');
 
     Route::put('/group/{group:slug}', [GroupController::class, 'update'])->name('group.update');
 

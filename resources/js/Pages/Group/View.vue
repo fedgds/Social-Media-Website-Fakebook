@@ -311,6 +311,10 @@ function updateGroup() {
                             <TabItem text="Ảnh" :selected="selected"/>
                         </Tab>
 
+                        <Tab v-slot="{ selected }" as="template">
+                            <TabItem text="Giới thiệu" :selected="selected"/>
+                        </Tab>
+
                         <Tab v-if="isCurrentUserAdmin" v-slot="{ selected }" as="template">
                             <TabItem text="Chỉnh sửa" :selected="selected"/>
                         </Tab>
@@ -365,6 +369,12 @@ function updateGroup() {
 
                         <TabPanel class="bg-white p-3 shadow">
                             Ảnh
+                        </TabPanel>
+
+                        <TabPanel class="bg-white p-3 shadow">
+                            <div class="ck-content-output dark:text-gray-100" v-html="group.about">
+
+                            </div>
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
