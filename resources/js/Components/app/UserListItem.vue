@@ -50,9 +50,6 @@ defineEmits(['approve', 'reject', 'roleChange', 'delete']);
                             :disabled="disableRoleDropdown">Xóa
                     </button>
                 </div>
-                <div v-else>
-                    Chờ duyệt
-                </div>
             </div>
         </div>
     </div>

@@ -8,6 +8,10 @@
     import Edit from '@/Pages/Profile/Edit.vue';
     import PrimaryButton from '@/Components/PrimaryButton.vue';
     import DangerButton from "@/Components/DangerButton.vue";
+    import CreatePost from "@/Components/app/CreatePost.vue";
+    import PostList from "@/Components/app/PostList.vue";
+    import UserListItem from "@/Components/app/UserListItem.vue";
+    import TextInput from "@/Components/TextInput.vue";
     import { useForm } from '@inertiajs/vue3';
 
     const imagesform = useForm({
@@ -15,11 +19,11 @@
         cover: null
     })
 
-    const showNotification = ref(true);
-
-    const coverImageSrc = ref('');
-
-    const avatarImageSrc = ref('');
+    const showNotification = ref(true)
+    const coverImageSrc = ref('')
+    const avatarImageSrc = ref('')
+    const searchFollowersKeyword = ref('')
+    const searchFollowingsKeyword = ref('')
 
     const authUser = usePage().props.auth.user;
 
@@ -40,7 +44,10 @@
         followerCount: Number,
         user: {
             type: Object
-        }
+        },
+        posts: Object,
+        followers: Array,
+        followings: Array,
     });
 
     function onCoverChange(event) {
@@ -132,40 +139,44 @@
                 <img :src="coverImageSrc || user.cover_url || '/img/default-cover.png'" class="w-full h-[200px] object-cover">
 
                 <div class="absolute top-2 right-2">
-                    <button v-if="!coverImageSrc" class="bg-gray-50 hover:bg-gray-100 text-gray-800 py-2 px-2 text-xs flex items-center opacity-0 group-hover:opacity-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
-                        </svg>
-                        Thay đổi ảnh nền
-                        <input type="file" class="absolute left-0 top-0 bottom-0 right-0 opacity-0 cursor-pointer" @change="onCoverChange">
-                    </button>
-                    <div v-else class="flex gap-2 bg-white p-2 opacity-0 group-hover:opacity-100">
-                        <button @click="resetCoverImage" class="bg-gray-50 hover:bg-gray-100 text-gray-800 py-2 px-2 text-xs flex items-center">
-                            <XMarkIcon class="h-3 w-3 mr-2" />
-                            Hủy
+                    <div v-if="isMyProfile">
+                        <button v-if="!coverImageSrc" class="bg-gray-50 hover:bg-gray-100 text-gray-800 py-2 px-2 text-xs flex items-center opacity-0 group-hover:opacity-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+                            </svg>
+                            Thay đổi ảnh nền
+                            <input type="file" class="absolute left-0 top-0 bottom-0 right-0 opacity-0 cursor-pointer" @change="onCoverChange">
                         </button>
-                        <button @click="submitCoverImage" class="bg-gray-800 hover:bg-gray-900 text-gray-100 py-2 px-2 text-xs flex items-center">
-                            <CheckCircleIcon class="h-3 w-3 mr-2" />
-                            Lưu
-                        </button>
+                        <div v-else class="flex gap-2 bg-white p-2 opacity-0 group-hover:opacity-100">
+                            <button @click="resetCoverImage" class="bg-gray-50 hover:bg-gray-100 text-gray-800 py-2 px-2 text-xs flex items-center">
+                                <XMarkIcon class="h-3 w-3 mr-2" />
+                                Hủy
+                            </button>
+                            <button @click="submitCoverImage" class="bg-gray-800 hover:bg-gray-900 text-gray-100 py-2 px-2 text-xs flex items-center">
+                                <CheckCircleIcon class="h-3 w-3 mr-2" />
+                                Lưu
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="flex">
                     <!-- Avatar Image -->
                     <div class="flex items-center justify-center relative group/avatar ml-[48px] w-[128px] h-128px -mt-[64px] rounded-full">
                         <img :src="avatarImageSrc || user.avatar_url || '/img/default-avatar.png'" class="w-full h-full object-cover rounded-full">
-                        <button v-if="!avatarImageSrc" class="absolute left-0 top-0 right-0 bottom-0 bg-black/50 text-white rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover/avatar:opacity-100">
-                            <CameraIcon class="w-8 h-8"/>
-                            <input type="file" class="absolute left-0 top-0 bottom-0 right-0 opacity-0 cursor-pointer" @change="onAvatarChange">
-                        </button>
-                        <div v-else class="absolute top-1 right-0 flex flex-col gap-2">
-                            <button @click="resetAvatarImage" class="w-7 h-7 flex items-center justify-center bg-red-500/80 text-white rounded-full">
-                                <XMarkIcon class="w-5 h-5" />
+                        <div v-if="isMyProfile">
+                            <button v-if="!avatarImageSrc" class="absolute left-0 top-0 right-0 bottom-0 bg-black/50 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover/avatar:opacity-100">
+                                <CameraIcon class="w-8 h-8"/>
+                                <input type="file" class="absolute left-0 top-0 bottom-0 right-0 opacity-0 cursor-pointer" @change="onAvatarChange">
                             </button>
-                            <button @click="submitAvatarImage" class="w-7 h-7 flex items-center justify-center bg-emerald-500/80 text-white rounded-full">
-                                <CheckCircleIcon class="h-5 w-5" />
-                            </button>
+                            <div v-else class="absolute top-1 right-0 flex flex-col gap-2">
+                                <button @click="resetAvatarImage" class="w-7 h-7 flex items-center justify-center bg-red-500/80 text-white rounded-full">
+                                    <XMarkIcon class="w-5 h-5" />
+                                </button>
+                                <button @click="submitAvatarImage" class="w-7 h-7 flex items-center justify-center bg-emerald-500/80 text-white rounded-full">
+                                    <CheckCircleIcon class="h-5 w-5" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="flex justify-between items-center flex-1 p-4">
@@ -211,15 +222,40 @@
             
                     <TabPanels class="mt-2">
                         <TabPanel class="bg-white p-3 shadow">
-                            Bài viết
+                            <CreatePost v-if="isMyProfile"/>
+                            <PostList :posts="posts.data" class="flex-1"/>
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
-                            Người theo dõi
+                            <div class="mb-3">
+                                <TextInput :model-value="searchFollowersKeyword" placeholder="Tìm kiếm"
+                                        class="w-full"/>
+                            </div>
+                            <div v-if="followers.length" class="grid grid-cols-2 gap-3">
+                                <UserListItem v-for="user of followers"
+                                            :user="user"
+                                            :key="user.id"
+                                            class="shadow rounded-lg"/>
+                            </div>
+                            <div v-else class="text-center py-8">
+                                Chưa có người theo dõi
+                            </div>
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
-                            Đang theo dõi
+                            <div class="mb-3">
+                                <TextInput :model-value="searchFollowingsKeyword" placeholder="Tìm kiếm"
+                                           class="w-full"/>
+                            </div>
+                            <div v-if="followings.length" class="grid grid-cols-2 gap-3">
+                                <UserListItem v-for="user of followings"
+                                              :user="user"
+                                              :key="user.id"
+                                              class="shadow rounded-lg"/>
+                            </div>
+                            <div v-else class="text-center py-8">
+                                Chưa theo dõi ai
+                            </div>
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
