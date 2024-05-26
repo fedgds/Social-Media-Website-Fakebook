@@ -9,7 +9,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
 defineProps({
     posts: Object,
-    groups: Array
+    groups: Array,
+    followings: Array
 });
 </script>
 
@@ -24,7 +25,7 @@ defineProps({
                 <GroupList :groups="groups"/>
             </div>
             <div class="lg:col-span-2 lg:order-3 h-full overflow-hidden">
-                <FollowingList />
+                <FollowingList :users="followings"/>
             </div>
             <div class="lg:col-span-7 lg:order-2 h-full overflow-hidden flex flex-col">
                 <CreatePost />

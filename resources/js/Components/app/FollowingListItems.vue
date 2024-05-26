@@ -4,6 +4,10 @@ import TextInput from "@/Components/TextInput.vue";
 import { ref } from "vue";
 
 const searchKeyword = ref('');
+
+defineProps({
+    users: Array
+});
 </script>
 
 <template>
@@ -13,7 +17,10 @@ const searchKeyword = ref('');
             Bạn chưa có người bạn nào
         </div>
         <div v-else>
-            
+            <UserListItem v-for="user of users"
+                                :user="user"
+                                :key="user.id"
+                                class="shadow rounded-lg"/>
         </div>
     </div>
 </template>

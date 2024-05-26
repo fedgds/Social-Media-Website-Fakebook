@@ -162,7 +162,7 @@
                 </div>
                 <div class="flex">
                     <!-- Avatar Image -->
-                    <div class="flex items-center justify-center relative group/avatar ml-[48px] w-[128px] h-128px -mt-[64px] rounded-full">
+                    <div class="flex items-center justify-center relative group/avatar ml-[48px] w-[128px] h-[128px] -mt-[64px] rounded-full">
                         <img :src="avatarImageSrc || user.avatar_url || '/img/default-avatar.png'" class="w-full h-full object-cover rounded-full">
                         <div v-if="isMyProfile">
                             <button v-if="!avatarImageSrc" class="absolute left-0 top-0 right-0 bottom-0 bg-black/50 rounded-full flex items-center justify-center text-white text-xs opacity-0 group-hover/avatar:opacity-100">

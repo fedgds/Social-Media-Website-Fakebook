@@ -21,15 +21,18 @@ defineEmits(['approve', 'reject', 'roleChange', 'delete']);
 </script>
 
 <template>
-    <div v-if="user.status !== 'rejected'" class="cursor-pointer bg-white border border-gray-300 hover:bg-gray-100">
+    <div v-if="user.status !== 'rejected'" class="cursor-pointer bg-white border border-gray-300 hover:bg-gray-100 mb-2">
         <div class="flex items-center gap-2 py-2 px-2">
             <Link :href="route('profile', user.username)">
-                <img :src="user.avatar_url" class="w-[40px] rounded-full">
+                <img :src="user.avatar_url" class="w-[40px] h-[40px] rounded-full object-cover">
             </Link>
             <div class="flex justify-between flex-1 ">
                 <Link :href="route('profile', user.username)">
                     <h3 class="font-black hover:underline">{{ user.name }}</h3>
                 </Link>
+                <div v-if="user.status == 'pending'">
+                    <p>Chờ xác nhận</p>
+                </div>
                 <div v-if="forApprove" class="flex gap-1">
                     <button @click.prevent.stop="$emit('approve', user)" class="py-1 px-2 text-xs text-white rounded bg-emerald-500 hover:bg-emerald-600">
                         Chấp nhận
