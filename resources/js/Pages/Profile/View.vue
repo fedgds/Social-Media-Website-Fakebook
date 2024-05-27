@@ -12,6 +12,7 @@
     import PostList from "@/Components/app/PostList.vue";
     import UserListItem from "@/Components/app/UserListItem.vue";
     import TextInput from "@/Components/TextInput.vue";
+    import TabPhotos from "@/Pages/Profile/TabPhotos.vue";
     import { useForm } from '@inertiajs/vue3';
 
     const imagesform = useForm({
@@ -48,6 +49,7 @@
         posts: Object,
         followers: Array,
         followings: Array,
+        photos: Array
     });
 
     function onCoverChange(event) {
@@ -259,7 +261,7 @@
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
-                            Ảnh
+                            <TabPhotos :photos="photos" />
                         </TabPanel>
 
                         <TabPanel v-if="isMyProfile">

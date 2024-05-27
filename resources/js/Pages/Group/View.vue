@@ -13,6 +13,7 @@ import PostList from "@/Components/app/PostList.vue";
 import CreatePost from "@/Components/app/CreatePost.vue";
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import InviteUserModal from "@/Pages/Group/InviteUserModal.vue";
+import TabPhotos from "@/Pages/Profile/TabPhotos.vue";
 
 const imagesform = useForm({
     thumbnail: null,
@@ -40,7 +41,8 @@ const props = defineProps({
     },
     posts: Object,
     users: Array,
-    requests: Array
+    requests: Array,
+    photos: Array
 });
 
 const aboutForm = useForm({
@@ -368,7 +370,7 @@ function updateGroup() {
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">
-                            Ảnh
+                            <TabPhotos :photos="photos" />
                         </TabPanel>
 
                         <TabPanel class="bg-white p-3 shadow">

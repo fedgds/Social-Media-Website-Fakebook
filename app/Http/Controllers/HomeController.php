@@ -18,8 +18,6 @@ class HomeController extends Controller
     {   
         $userId = Auth::id();
         $user = $request->user();
-        // $userList = UserResource::collection($user->followings);
-        // dd($userList);
         $posts = Post::postsForTimeline($userId)
             ->select('posts.*')
             ->leftJoin('followers AS f', function ($join) use ($userId) {

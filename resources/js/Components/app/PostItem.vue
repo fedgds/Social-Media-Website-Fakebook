@@ -64,7 +64,7 @@ function sendReaction() {
             post.attachments.length == 1 ? 'grid-cols-1' : 'grid-cols-2'
         ]">
 
-<PostAttachments :attachments="post.attachments" @attachmentClick="openAttachment"/>
+            <PostAttachments :attachments="post.attachments" @attachmentClick="openAttachment"/>
         </div>
 
         <Disclosure v-slot="{  }">
