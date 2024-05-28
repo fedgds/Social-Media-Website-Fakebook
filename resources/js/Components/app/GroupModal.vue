@@ -121,7 +121,6 @@ function submit() {
                     Tạo
                 </button>
               </div>
-              <pre>{{form }}</pre>
             </DialogPanel>
           </TransitionChild>
         </div>
