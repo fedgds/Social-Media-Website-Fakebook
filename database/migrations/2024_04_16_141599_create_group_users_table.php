@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('token', 1024)->nullable();
             $table->string('token_expire_date')->nullable();
             $table->string('token_used')->nullable();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('group_id')->constrained('groups');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('group_id')->constrained('groups')->cascadeOnDelete();
             $table->foreignId('created_by')->constrained('users');
             $table->timestamp('created_at')->nullable();
         });

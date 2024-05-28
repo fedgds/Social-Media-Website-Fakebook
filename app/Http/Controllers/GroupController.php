@@ -73,9 +73,9 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreGroupRequest $request)
+    public function store(Request $request)
     {
-        $data = $request->validated();
+        $data = $request->all();
         $data['user_id'] = Auth::id();
         $group = Group::create($data);
 
@@ -91,7 +91,8 @@ class GroupController extends Controller
         $group->status = $groupUserData['status'];
         $group->role = $groupUserData['role'];
 
-        return response(new GroupResource($group), 201);
+        // return response(new GroupResource($group), 201);
+        return back();
     }
 
 

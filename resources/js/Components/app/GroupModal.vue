@@ -42,11 +42,17 @@ function resetModal() {
 }
 
 function submit() {
-    axiosClient.post(route('group.create'), form)
-        .then(({data}) => {
-            closeModal()
-            emit('create', data)
-        })
+    // axiosClient.post(route('group.create'), form)
+    //     .then(({data}) => {
+    //         closeModal()
+    //         emit('create', data)
+    //     })
+        form.post(route('group.create'), {
+            onSuccess: (res) => {
+                closeModal()
+                emit('create', data)
+            }
+          })
 }
 
 
@@ -100,12 +106,12 @@ function submit() {
               </div>
 
               <div class="flex justify-end py-3 px-4 gap-4">
-                <DisclosureButton
+                <button
                     class="text-gray-800 dark:text-gray-100 flex gap-1 items-center justify-center bg-gray-100 dark:bg-slate-900 dark:hover:bg-slate-800 rounded-md hover:bg-gray-200  py-2 px-4"
                 >
                     <XMarkIcon class="w-5 h-5"/>
                     Hủy
-                </DisclosureButton>
+                </button>
                 <button
                     type="button"
                     class="flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -115,6 +121,7 @@ function submit() {
                     Tạo
                 </button>
               </div>
+              <pre>{{form }}</pre>
             </DialogPanel>
           </TransitionChild>
         </div>
